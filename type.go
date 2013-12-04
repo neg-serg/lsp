@@ -1,6 +1,6 @@
 package main
 
-import "os"
+import "syscall"
 
 type indicator int
 
@@ -31,17 +31,17 @@ const (
 	typeClrToEol
 )
 
-func colorType(mode os.FileMode, linkok bool) indicator {
+func colorType(mode fileMode, linkok bool) indicator {
 	var t indicator
 	if !linkok && isColored(typeMissing) {
 		t = typeMissing
 	} else {
-		if mode.IsRegular() {
+		if mode.isRegular() {
 			t = typeFile
 			switch {
-			case mode&os.ModeSetuid != 0 && isColored(typeSetuid):
+			case mode&syscall.S_ISUID != 0 && isColored(typeSetuid):
 				t = typeSetuid
-			case ((mode&os.ModeSetgid) != 0 && isColored(typeSetgid)):
+			case ((mode&syscall.S_ISGID) != 0 && isColored(typeSetgid)):
 				t = typeSetgid
 			//case (isColored (C_CAP) && f->has_capability):
 			//  t = C_CAP;
@@ -50,28 +50,28 @@ func colorType(mode os.FileMode, linkok bool) indicator {
 				//case ((1 < f->stat.st_nlink) && isColored (C_MULTIHARDLINK)):
 				//  t = C_MULTIHARDLINK;
 			}
-		} else if mode.IsDir() {
+		} else if mode.isDir() {
 			t = typeDir
 			switch {
-			case (mode&os.ModeSticky != 0) && (mode&modeIWOTH != 0) &&
+			case (mode&syscall.S_ISVTX != 0) && (mode&modeIWOTH != 0) &&
 				isColored(typeStickyOtherWritable):
 				t = typeStickyOtherWritable
 			case ((mode&modeIWOTH) != 0 && isColored(typeOtherWritable)):
 				t = typeOtherWritable
-			case ((mode&os.ModeSticky) != 0 && isColored(typeSticky)):
+			case ((mode&syscall.S_ISVTX) != 0 && isColored(typeSticky)):
 				t = typeSticky
 			}
 		} else {
-			switch {
-			case mode&os.ModeSymlink != 0:
+			switch mode & syscall.S_IFMT {
+			case syscall.S_IFLNK:
 				t = typeLink
-			case mode&os.ModeNamedPipe != 0:
+			case syscall.S_IFIFO:
 				t = typeFifo
-			case mode&os.ModeSocket != 0:
+			case syscall.S_IFSOCK:
 				t = typeSock
-			case mode%os.ModeCharDevice != 0:
+			case syscall.S_IFCHR:
 				t = typeChr
-			case mode&os.ModeDevice != 0:
+			case syscall.S_IFBLK:
 				t = typeBlk
 			default:
 				// anything else is classified as orphan

@@ -2,7 +2,7 @@ package main
 
 import (
 	"bytes"
-	"os"
+	"syscall"
 )
 
 const (
@@ -25,26 +25,28 @@ const (
 	cWrite    = cESC + "38;5;216m" + "w"
 )
 
-func typeletter(mode os.FileMode) string {
+func typeletter(mode fileMode) string {
 	switch {
 	// These are the most common, so test for them first.
-	case mode.IsRegular():
+	case mode.isRegular():
 		return cNone
-	case mode.IsDir():
+	case mode.isDir():
 		return cDir
+	}
 
+	switch mode & syscall.S_IFMT {
 	// Other letters standardized by POSIX 1003.1-2004.
-	case mode&os.ModeCharDevice != 0:
+	case syscall.S_IFCHR:
 		return cChar
-	case mode&os.ModeDevice != 0:
+	case syscall.S_IFBLK:
 		return cDev
-	case mode&os.ModeNamedPipe != 0:
+	case syscall.S_IFIFO:
 		return cFifo
-	case mode&os.ModeSymlink != 0:
+	case syscall.S_IFLNK:
 		return cLink
 
 	// Other file types (though not letters) standardized by POSIX.
-	case mode&os.ModeSocket != 0:
+	case syscall.S_IFSOCK:
 		return cSock
 	}
 	return "?"
@@ -53,7 +55,7 @@ func typeletter(mode os.FileMode) string {
 var buf bytes.Buffer
 
 /* Like filemodestring, but rely only on MODE.  */
-func strmode(mode os.FileMode) string {
+func strmode(mode fileMode) string {
 	buf.Reset()
 	buf.WriteString(typeletter(mode))
 
@@ -69,7 +71,7 @@ func strmode(mode os.FileMode) string {
 		buf.WriteString(cNone)
 	}
 
-	if mode&os.ModeSetuid != 0 {
+	if mode&syscall.S_ISUID != 0 {
 		if mode&modeIXUSR != 0 {
 			buf.WriteString(cUIDExec)
 		} else {
@@ -93,7 +95,7 @@ func strmode(mode os.FileMode) string {
 		buf.WriteString(cNone)
 	}
 
-	if mode&os.ModeSetgid != 0 {
+	if mode&syscall.S_ISGID != 0 {
 		if mode&modeIXGRP != 0 {
 			buf.WriteString(cUIDExec)
 		} else {
@@ -117,7 +119,7 @@ func strmode(mode os.FileMode) string {
 		buf.WriteString(cNone)
 	}
 
-	if mode&os.ModeSticky != 0 {
+	if mode&syscall.S_ISVTX != 0 {
 		if mode&modeIXOTH != 0 {
 			buf.WriteString(cRes)
 		} else {

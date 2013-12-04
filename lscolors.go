@@ -7,30 +7,30 @@ import (
 
 var lsColorSuffix = make(map[string]string)
 var lsColorTypes = [...]string{
-	"\033[",  // lc: Left of color sequence
-	"m",      // rc: Right of color sequence
-	"",       // ec: End color (replaces lc+no+rc)
-	"0",      // rs: Reset to ordinary colors
-	"",       // no: Normal
-	"",       // fi: File: default
-	"01;34",  // di: Directory: bright blue
-	"01;36",  // ln: Symlink: bright cyan
-	"33",     // pi: Pipe: yellow/brown
-	"01;35",  // so: Socket: bright magenta
-	"01;33",  // bd: Block device: bright yellow
-	"01;33",  // cd: Char device: bright yellow
-	"",       // mi: Missing file: undefined
-	"",       // or: Orphaned symlink: undefined
-	"01;32",  // ex: Executable: bright green
-	"01;35",  // do: Door: bright magenta
-	"37;41",  // su: setuid: white on red
-	"30;43",  // sg: setgid: black on yellow
-	"37;44",  // st: sticky: black on blue
-	"34;42",  // ow: other-writable: blue on green
-	"30;42",  // tw: ow w/ sticky: black on green
-	"30;41",  // ca: black on red
-	"",       // mh: disabled by default
-	"\033[K", // cl: clear to end of line
+	"\033[",  // "lc": Left of color sequence
+	"m",      // "rc": Right of color sequence
+	"",       // "ec": End color (replaces lc+no+rc)
+	"0",      // "rs": Reset to ordinary colors
+	"",       // "no": Normal
+	"",       // "fi": File: default
+	"01;34",  // "di": Directory: bright blue
+	"01;36",  // "ln": Symlink: bright cyan
+	"33",     // "pi": Pipe: yellow/brown
+	"01;35",  // "so": Socket: bright magenta
+	"01;33",  // "bd": Block device: bright yellow
+	"01;33",  // "cd": Char device: bright yellow
+	"",       // "mi": Missing file: undefined
+	"",       // "or": Orphaned symlink: undefined
+	"01;32",  // "ex": Executable: bright green
+	"01;35",  // "do": Door: bright magenta
+	"37;41",  // "su": setuid: white on red
+	"30;43",  // "sg": setgid: black on yellow
+	"37;44",  // "st": sticky: black on blue
+	"34;42",  // "ow": other-writable: blue on green
+	"30;42",  // "tw": ow w/ sticky: black on green
+	"30;41",  // "ca": black on red
+	"",       // "mh": disabled by default
+	"\033[K", // "cl": clear to end of line
 }
 
 func isColored(t indicator) bool {

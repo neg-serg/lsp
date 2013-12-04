@@ -1,6 +1,5 @@
 // TODO: switch to a better command line flag package
 // TODO: implement more GNU ls options
-// TODO: fix sorting
 
 //%ls_colors = (
 //	'README$'        => 11,
@@ -12,8 +11,9 @@ package main
 
 import (
 	"fmt"
-	"os"
 	"sort"
+	"syscall"
+	"time"
 
 	flag "github.com/neeee/pflag"
 )
@@ -21,7 +21,7 @@ import (
 var (
 	all      = flag.BoolP("all", "a", false, "show all")
 	classify = flag.BoolP("classify", "F", false, "append indicator")
-	fclass   = flag.Bool("file-type", false, "append indicators except *")
+	ctime    = flag.BoolP("ctime", "c", false, "ctime instead of modtime")
 	_        = flag.BoolP("list", "l", false, "noop")
 	_        = flag.BoolP("human-readable", "h", false, "noop")
 )
@@ -37,16 +37,16 @@ const (
 	cSymDelim = " " + "\033[38;5;9m" + "→" + cEnd + " "
 )
 
-type fileList []os.FileInfo
+type fileList []*fileStat
 
 func (p fileList) Len() int { return len(p) }
 func (p fileList) Less(a, b int) bool {
 	aF, bF := p[a], p[b]
-	aD, bD := aF.IsDir(), bF.IsDir()
+	aD, bD := aF.isDir(), bF.isDir()
 	if aD != bD {
 		return aD
 	}
-	sA, sB := aF.Name(), bF.Name()
+	sA, sB := aF.name, bF.name
 	return filevercmp(sA, sB) < 0
 }
 func (p fileList) Swap(i, j int) { p[i], p[j] = p[j], p[i] }
@@ -70,43 +70,49 @@ func main() {
 		}
 	}
 
+	var t time.Time
 	for _, fis := range fis {
 		for _, f := range fis {
+			if *ctime {
+				t = f.cTime
+			} else {
+				t = f.modTime
+			}
 			fmt.Println(cLeftCol +
-				strmode(f.Mode()) +
+				strmode(f.mode) +
 				cRightCol +
-				reltime(f.ModTime()) +
+				reltime(t) +
 				cCol +
-				size(f.Size()) +
+				size(f.size) +
 				cCol +
 				name(f))
 		}
 	}
 }
 
-func name(f os.FileInfo) string {
-	var l os.FileInfo
+func name(f *fileStat) string {
+	var l *fileStat
 	linkok := true
 	linkname := ""
-	mode := f.Mode()
-	if f.Mode()&os.ModeSymlink == os.ModeSymlink {
+	mode := f.mode
+	if f.mode&syscall.S_IFMT == syscall.S_IFLNK {
 		var err error
-		linkname, err = os.Readlink(f.Name())
+		linkname, err = readlink(f.name)
 		if err != nil {
 			linkok = false
 		} else {
-			l, err = os.Stat(linkname)
+			l, err = stat(linkname)
 			if err != nil {
 				linkok = false
 			} else {
-				mode = l.Mode()
+				mode = l.mode
 			}
 		}
 	}
 
 	t := colorType(mode, linkok)
-	cc := color(f.Name(), t)
-	name := f.Name()
+	cc := color(f.name, t)
+	name := f.name
 	if cc != "" {
 		name = cESC + cc + "m" + name + cEnd
 	}
@@ -117,11 +123,11 @@ func name(f os.FileInfo) string {
 			cESC + lc + "m" +
 			linkname + cEnd
 	}
-	if *classify || *fclass {
+	if *classify {
 		switch {
-		case mode.IsDir():
+		case mode.isDir():
 			return name + "/"
-		case t == typeExec && !*fclass:
+		case t == typeExec:
 			return name + "*"
 		case t == typeFifo:
 			return name + "|"
@@ -138,30 +144,3 @@ func name(f os.FileInfo) string {
 //		ffis = append(ffis, fi)
 //	}
 //}
-
-func ls(name string) ([]os.FileInfo, error) {
-	fi, err := os.Stat(name)
-	if err != nil {
-		return nil, err
-	}
-	if fi.IsDir() {
-		f, err := os.Open(name)
-		if err != nil {
-			return nil, err
-		}
-		defer f.Close()
-		fis, err := f.Readdir(0)
-		if *all {
-			return fis, err
-		}
-		filtered := make([]os.FileInfo, 0, len(fis))
-		for _, fi := range fis {
-			if name := fi.Name(); len(name) > 0 && name[0] == '.' {
-				continue
-			}
-			filtered = append(filtered, fi)
-		}
-		return filtered, err
-	}
-	return []os.FileInfo{fi}, nil
-}

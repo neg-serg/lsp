@@ -35,26 +35,26 @@ func reltime(then time.Time) string {
 
 	switch {
 	case diff <= Second:
-		return cSecond + "<   sec" + cEnd
+		return cSecond + " <  sec" + cEnd
 
 	case diff < Minute:
 		return cSecond +
-			fmt.Sprintf("%-2d", diff) +
+			fmt.Sprintf("%2d", diff) +
 			"  sec" + cEnd
 
 	case diff < Hour:
 		return cMinute +
-			fmt.Sprintf("%-2d", diff/Minute) +
+			fmt.Sprintf("%2d", diff/Minute) +
 			"  min" + cEnd
 
 	case diff < Hour*36:
 		return cHour +
-			fmt.Sprintf("%-2d", diff/Hour) +
+			fmt.Sprintf("%2d", diff/Hour) +
 			" hour" + cEnd
 
 	case diff < Month:
 		return cDay +
-			fmt.Sprintf("%-2d", diff/Day) +
+			fmt.Sprintf("%2d", diff/Day) +
 			"  day" + cEnd
 
 	//case diff < Month:
@@ -64,12 +64,12 @@ func reltime(then time.Time) string {
 
 	case diff < Year:
 		return cMonth +
-			fmt.Sprintf("%-2d", diff/Month) +
+			fmt.Sprintf("%2d", diff/Month) +
 			"  mon" + cEnd
 
 	default:
 		return cYear +
-			fmt.Sprintf("%-2d", diff/Year) +
+			fmt.Sprintf("%2d", diff/Year) +
 			" year" + cEnd
 	}
 }

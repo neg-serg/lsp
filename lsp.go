@@ -13,7 +13,6 @@ import (
 	"fmt"
 	"sort"
 	"syscall"
-	"time"
 
 	flag "github.com/neeee/pflag"
 )
@@ -37,7 +36,7 @@ const (
 	cSymDelim = " " + "\033[38;5;9m" + "→" + cEnd + " "
 )
 
-type fileList []*fileStat
+type fileList []*fileInfo
 
 func (p fileList) Len() int { return len(p) }
 func (p fileList) Less(a, b int) bool {
@@ -70,18 +69,12 @@ func main() {
 		}
 	}
 
-	var t time.Time
 	for _, fis := range fis {
 		for _, f := range fis {
-			if *ctime {
-				t = f.cTime
-			} else {
-				t = f.modTime
-			}
 			fmt.Println(cLeftCol +
 				strmode(f.mode) +
 				cRightCol +
-				reltime(t) +
+				reltime(f.time) +
 				cCol +
 				size(f.size) +
 				cCol +
@@ -90,8 +83,8 @@ func main() {
 	}
 }
 
-func name(f *fileStat) string {
-	var l *fileStat
+func name(f *fileInfo) string {
+	var l *fileInfo
 	linkok := true
 	linkname := ""
 	mode := f.mode

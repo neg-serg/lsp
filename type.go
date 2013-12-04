@@ -31,12 +31,6 @@ const (
 	TypeClrToEol
 )
 
-var indicatorNames = [...]string{
-	"lc", "rc", "ec", "rs", "no", "fi", "di", "ln", "pi", "so",
-	"bd", "cd", "mi", "or", "ex", "do", "su", "sg", "st",
-	"ow", "tw", "ca", "mh", "cl",
-}
-
 func colorType(mode os.FileMode, linkok bool) indicator {
 	var t indicator
 	if !linkok && isColored(TypeMissing) {
@@ -53,8 +47,8 @@ func colorType(mode os.FileMode, linkok bool) indicator {
 			//  t = C_CAP;
 			case ((mode&ModeIXUGO) != 0 && isColored(TypeExec)):
 				t = TypeExec
-				//case ((1 < f->stat.st_nlink) && isColored (C_MULTIHARDLINK)):
-				//  t = C_MULTIHARDLINK;
+			//case ((1 < f->stat.st_nlink) && isColored (C_MULTIHARDLINK)):
+			//  t = C_MULTIHARDLINK;
 			}
 		} else if mode.IsDir() {
 			t = TypeDir

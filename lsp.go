@@ -1,6 +1,13 @@
 // TODO: switch to a better command line flag package
 // TODO: implement more GNU ls options
 // TODO: fix sorting
+
+//%ls_colors = (
+//	'README$'        => 11,
+//	'Makefile$'      => $c[15],
+//	'(=:.+)?\..*rc'  => $c[3],
+//);
+
 package main
 
 import (
@@ -30,94 +37,19 @@ const (
 	cSymDelim = " " + "\033[38;5;9m" + "→" + cEnd + " "
 )
 
-//%ls_colors = (
-//	'README$'        => 11,
-//	'Makefile$'      => $c[15],
-//	'(=:.+)?\..*rc'  => $c[3],
-//);
+type fileList []os.FileInfo
 
-var lsColorSuffix = make(map[string]string)
-var lsColorTypes = [...]string{
-	"\033[",  // lc: Left of color sequence
-	"m",      // rc: Right of color sequence
-	"",       // ec: End color (replaces lc+no+rc)
-	"0",      // rs: Reset to ordinary colors
-	"",       // no: Normal
-	"",       // fi: File: default
-	"01;34",  // di: Directory: bright blue
-	"01;36",  // ln: Symlink: bright cyan
-	"33",     // pi: Pipe: yellow/brown
-	"01;35",  // so: Socket: bright magenta
-	"01;33",  // bd: Block device: bright yellow
-	"01;33",  // cd: Char device: bright yellow
-	"",       // mi: Missing file: undefined
-	"",       // or: Orphaned symlink: undefined
-	"01;32",  // ex: Executable: bright green
-	"01;35",  // do: Door: bright magenta
-	"37;41",  // su: setuid: white on red
-	"30;43",  // sg: setgid: black on yellow
-	"37;44",  // st: sticky: black on blue
-	"34;42",  // ow: other-writable: blue on green
-	"30;42",  // tw: ow w/ sticky: black on green
-	"30;41",  // ca: black on red
-	"",       // mh: disabled by default
-	"\033[K", // cl: clear to end of line
-}
-
-func isColored(t indicator) bool {
-	return lsColorTypes[t] != ""
-}
-
-func parseLSColor() {
-	lsc := os.Getenv("LS_COLORS")
-	var eq bool
-	var kb, ke int
-	for i := 0; i < len(lsc); i++ {
-		b := lsc[i]
-		if eq {
-			if b == ':' {
-				if lsc[kb] == '*' {
-					lsColorSuffix[lsc[kb+1:ke]] = lsc[ke+1 : i]
-				} else {
-					k := lsc[kb:ke]
-					fail := true
-					for in, s := range indicatorNames {
-						if s == k {
-							lsColorTypes[in] = lsc[ke+1 : i]
-							fail = false
-						}
-					}
-					if fail {
-						fmt.Printf("Unrecognized key: %s\n", k)
-					}
-				}
-				i++
-				kb = i
-				eq = false
-			}
-		} else {
-			if b == '=' {
-				ke = i
-				eq = true
-			}
-		}
+func (p fileList) Len() int { return len(p) }
+func (p fileList) Less(a, b int) bool {
+	aF, bF := p[a], p[b]
+	aD, bD := aF.IsDir(), bF.IsDir()
+	if aD != bD {
+		return aD
 	}
-	//for k, v := range lsColorSuffix {
-	//	fmt.Printf("%s = \033[%s;1m%s\033[0m\n", k, v, v)
-	//}
+	sA, sB := aF.Name(), bF.Name()
+	return filevercmp(sA, sB) < 0
 }
-
-type fileInfos []os.FileInfo
-
-func (p fileInfos) Len() int { return len(p) }
-func (p fileInfos) Less(i, j int) bool {
-	mi, mj := p[i].IsDir(), p[j].IsDir()
-	if mi == mj {
-		return p[i].Name() < p[j].Name()
-	}
-	return mi
-}
-func (p fileInfos) Swap(i, j int) { p[i], p[j] = p[j], p[i] }
+func (p fileList) Swap(i, j int) { p[i], p[j] = p[j], p[i] }
 
 func main() {
 	parseLSColor()
@@ -126,15 +58,15 @@ func main() {
 	if len(args) == 0 {
 		args = []string{"."}
 	}
-	fis := make([]fileInfos, 0, len(args))
+	fis := make([]fileList, 0, len(args))
 	for _, name := range args {
 		nfis, err := ls(name)
 		if err != nil {
 			fmt.Println(err)
 		} else {
-			snfis := fileInfos(nfis)
+			snfis := fileList(nfis)
 			sort.Sort(snfis)
-			fis = append(fis, snfis)
+			fis = append(fis, nfis)
 		}
 	}
 
@@ -198,19 +130,6 @@ func name(f os.FileInfo) string {
 		}
 	}
 	return name
-}
-
-func color(name string, in indicator) string {
-	if in == TypeFile {
-		for i := 0; i < len(name); i++ {
-			if name[i] == '.' {
-				if v, ok := lsColorSuffix[name[i:]]; ok {
-					return v
-				}
-			}
-		}
-	}
-	return lsColorTypes[in]
 }
 
 //ffis := make([]os.FileInfo, 0, len(fis))

@@ -17,10 +17,6 @@ const (
 	EiB  = PiB * 1024
 )
 
-func logn(n, b float64) float64 {
-	return math.Log(n) / math.Log(b)
-}
-
 const cSize = ESC + "38;5;216m"
 
 var cSizes = [...]string{
@@ -39,13 +35,12 @@ func size(s int64) string {
 	if s < 10 {
 		return fmt.Sprintf("%s%4d%s", cSize, s, cSizes[0])
 	}
-	e := math.Floor(logn(float64(s), base))
+	f := float64(s)
+	e := math.Floor(math.Log(f) / math.Log(base))
 	suffix := cSizes[int(e)]
-	val := float64(s) / math.Pow(base, math.Floor(e))
-	f := "%4.0f"
-	if val < 10 {
-		f = "%4.1f"
+	val := f / math.Pow(base, e)
+	if val >= 10 {
+		return fmt.Sprintf("%s%4v%s", cSize, int(val), suffix)
 	}
-
-	return fmt.Sprintf("%s"+f+"%s", cSize, val, suffix)
+	return fmt.Sprintf("%s%4v%s", cSize, math.Floor(val*10)/10, suffix)
 }

@@ -17,13 +17,13 @@ const (
 	EiB  = PiB * 1024
 )
 
-const cSize = ESC + "38;5;216m"
+const cSize = cESC + "38;5;216m"
 
 var cSizes = [...]string{
-	ESC + "38;5;7;1m" + "B" + cEnd,
-	ESC + "38;5;2;1m" + "K" + cEnd,
-	ESC + "38;5;14;1m" + "M" + cEnd,
-	ESC + "38;5;12;1m" + "G" + cEnd,
+	cESC + "38;5;7;1m" + "B" + cEnd,
+	cESC + "38;5;2;1m" + "K" + cEnd,
+	cESC + "38;5;14;1m" + "M" + cEnd,
+	cESC + "38;5;12;1m" + "G" + cEnd,
 	cEnd + "T",
 	cEnd + "P",
 	cEnd + "E",

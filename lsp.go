@@ -108,24 +108,24 @@ func name(f os.FileInfo) string {
 	cc := color(f.Name(), t)
 	name := f.Name()
 	if cc != "" {
-		name = ESC + cc + "m" + name + cEnd
+		name = cESC + cc + "m" + name + cEnd
 	}
 	if linkname != "" {
 		lc := color(linkname, t)
 		name = name + cSymDelim +
-			ESC + "38;5;8;3m" +
-			ESC + lc + "m" +
+			cESC + "38;5;8;3m" +
+			cESC + lc + "m" +
 			linkname + cEnd
 	}
 	if *classify || *fclass {
 		switch {
 		case mode.IsDir():
 			return name + "/"
-		case t == TypeExec && !*fclass:
+		case t == typeExec && !*fclass:
 			return name + "*"
-		case t == TypeFifo:
+		case t == typeFifo:
 			return name + "|"
-		case t == TypeSock:
+		case t == typeSock:
 			return name + "="
 		}
 	}

@@ -38,7 +38,7 @@ func isColored(t indicator) bool {
 }
 
 func color(name string, in indicator) string {
-	if in == TypeFile {
+	if in == typeFile {
 		for i := 0; i < len(name); i++ {
 			if name[i] == '.' {
 				if v, ok := lsColorSuffix[name[i:]]; ok {
@@ -51,30 +51,30 @@ func color(name string, in indicator) string {
 }
 
 var indicatorNamesMap = map[string]indicator{
-	"lc": TypeLeft,
-	"rc": TypeRight,
-	"ec": TypeEnd,
-	"rs": TypeReset,
-	"no": TypeNorm,
-	"fi": TypeFile,
-	"di": TypeDir,
-	"ln": TypeLink,
-	"pi": TypeFifo,
-	"so": TypeSock,
-	"bd": TypeBlk,
-	"cd": TypeChr,
-	"mi": TypeMissing,
-	"or": TypeOrphan,
-	"ex": TypeExec,
-	"do": TypeDoor,
-	"su": TypeSetuid,
-	"sg": TypeSetgid,
-	"st": TypeSticky,
-	"ow": TypeOtherWritable,
-	"tw": TypeStickyOtherWritable,
-	"ca": TypeCap,
-	"mh": TypeMultihardlink,
-	"cl": TypeClrToEol,
+	"lc": typeLeft,
+	"rc": typeRight,
+	"ec": typeEnd,
+	"rs": typeReset,
+	"no": typeNorm,
+	"fi": typeFile,
+	"di": typeDir,
+	"ln": typeLink,
+	"pi": typeFifo,
+	"so": typeSock,
+	"bd": typeBlk,
+	"cd": typeChr,
+	"mi": typeMissing,
+	"or": typeOrphan,
+	"ex": typeExec,
+	"do": typeDoor,
+	"su": typeSetuid,
+	"sg": typeSetgid,
+	"st": typeSticky,
+	"ow": typeOtherWritable,
+	"tw": typeStickyOtherWritable,
+	"ca": typeCap,
+	"mh": typeMultihardlink,
+	"cl": typeClrToEol,
 }
 
 func parseLSColor() {

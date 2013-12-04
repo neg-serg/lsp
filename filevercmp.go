@@ -1,18 +1,18 @@
 package main
 
-// Helper functions
+// Ported from gnulib
 
-func isalpha(c byte) bool {
+func isAlpha(c byte) bool {
 	return ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'))
 }
 
-func isalnum(c byte) bool {
+func isAlnum(c byte) bool {
 	return (c >= '0' && c <= '9') ||
 		(c >= 'A' && c <= 'Z') ||
 		(c >= 'a' && c <= 'z')
 }
 
-func isdigit(c byte) bool {
+func isDigit(c byte) bool {
 	return (c >= '0' && c <= '9')
 }
 
@@ -21,21 +21,21 @@ func isdigit(c byte) bool {
 // Scan the string *STR and return a pointer to the matching suffix, or
 // NULL if not found.  Upon return, *STR points to terminating NUL.
 func suffixIndex(s string) int {
-	read_alpha := false
+	readAlpha := false
 	match := -1
 	for i := 0; i < len(s); i++ {
 		c := s[i]
-		if read_alpha {
-			read_alpha = false
-			if !isalpha(c) && c != '~' {
+		if readAlpha {
+			readAlpha = false
+			if !isAlpha(c) && c != '~' {
 				match = -1
 			}
 		} else if '.' == c {
-			read_alpha = true
+			readAlpha = true
 			if match == -1 {
 				match = i
 			}
-		} else if !isalnum(c) && c != '~' {
+		} else if !isAlnum(c) && c != '~' {
 			match = -1
 		}
 	}
@@ -43,14 +43,15 @@ func suffixIndex(s string) int {
 }
 
 // verrevcmp helper function
-func order(c byte) int {
-	if isdigit(c) {
+func sortOrder(c byte) int {
+	switch {
+	case isDigit(c):
 		return 0
-	} else if isalpha(c) {
+	case isAlpha(c):
 		return int(c)
-	} else if c == '~' {
+	case c == '~':
 		return -1
-	} else {
+	default:
 		return int(c) + 256
 	}
 }
@@ -59,14 +60,15 @@ func order(c byte) int {
 func verrevcmp(a, b string) int {
 	ai, bi := 0, 0
 	for ai < len(a) || bi < len(b) {
-		first_diff := 0
-		for (ai < len(a) && !isdigit(a[ai])) || (bi < len(b) && !isdigit(b[bi])) {
+		firstDiff := 0
+		for (ai < len(a) && !isDigit(a[ai])) ||
+			(bi < len(b) && !isDigit(b[bi])) {
 			var ac, bc int
 			if ai < len(a) {
-				ac = order(a[ai])
+				ac = sortOrder(a[ai])
 			}
 			if bi < len(b) {
-				bc = order(b[bi])
+				bc = sortOrder(b[bi])
 			}
 
 			if ac != bc {
@@ -82,22 +84,23 @@ func verrevcmp(a, b string) int {
 		for bi < len(b) && b[bi] == '0' {
 			bi++
 		}
-		for ai < len(a) && isdigit(a[ai]) && bi < len(b) && isdigit(b[bi]) {
-			if first_diff == 0 {
-				first_diff = int(a[ai]) - int(b[bi])
+		for ai < len(a) && isDigit(a[ai]) &&
+			bi < len(b) && isDigit(b[bi]) {
+			if firstDiff == 0 {
+				firstDiff = int(a[ai]) - int(b[bi])
 			}
 			ai++
 			bi++
 		}
 
-		if ai < len(a) && isdigit(a[ai]) {
+		if ai < len(a) && isDigit(a[ai]) {
 			return 1
 		}
-		if bi < len(b) && isdigit(b[bi]) {
+		if bi < len(b) && isDigit(b[bi]) {
 			return -1
 		}
-		if first_diff != 0 {
-			return first_diff
+		if firstDiff != 0 {
+			return firstDiff
 		}
 	}
 
@@ -142,25 +145,25 @@ func filevercmp(s1, s2 string) int {
 	}
 
 	// file suffixes
-	s1_suffix_index := suffixIndex(s1)
-	s2_suffix_index := suffixIndex(s2)
+	s1SufIndex := suffixIndex(s1)
+	s2SufIndex := suffixIndex(s2)
 
-	var s1_cut, s2_cut = s1, s2
-	var s1_suffix, s2_suffix string
-	if s1_suffix_index != -1 {
-		s1_cut = s1[:s1_suffix_index]
-		s1_suffix = s1[s1_suffix_index:]
+	var s1Cut, s2Cut = s1, s2
+	var s1Suf, s2Suf string
+	if s1SufIndex != -1 {
+		s1Cut = s1[:s1SufIndex]
+		s1Suf = s1[s1SufIndex:]
 	}
-	if s2_suffix_index != -1 {
-		s2_cut = s2[:s2_suffix_index]
-		s2_suffix = s2[s2_suffix_index:]
+	if s2SufIndex != -1 {
+		s2Cut = s2[:s2SufIndex]
+		s2Suf = s2[s2SufIndex:]
 	}
 
 	// restore file suffixes if strings are identical after "cut"
-	if s1_cut == s2_cut {
-		result = verrevcmp(s1_suffix, s2_suffix)
+	if s1Cut == s2Cut {
+		result = verrevcmp(s1Suf, s2Suf)
 	} else {
-		result = verrevcmp(s1_cut, s2_cut)
+		result = verrevcmp(s1Cut, s2Cut)
 	}
 
 	if result == 0 {

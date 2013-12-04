@@ -6,13 +6,13 @@ import (
 )
 
 const (
-	cSecond = ESC + "38;5;12m"
-	cMinute = ESC + "38;5;9m"
-	cHour   = ESC + "38;5;1m"
-	cDay    = ESC + "38;5;8m"
-	cWeek   = ESC + "38;5;8m"
-	cMonth  = ESC + "38;5;16m"
-	cYear   = ESC + "38;5;0m"
+	cSecond = cESC + "38;5;12m"
+	cMinute = cESC + "38;5;9m"
+	cHour   = cESC + "38;5;1m"
+	cDay    = cESC + "38;5;8m"
+	cWeek   = cESC + "38;5;8m"
+	cMonth  = cESC + "38;5;16m"
+	cYear   = cESC + "38;5;0m"
 )
 
 // Time units

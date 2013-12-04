@@ -1,22 +1,22 @@
 package main
 
 const (
-	ModeIRWXU = 00700
-	ModeIRUSR = 00400
-	ModeIWUSR = 00200
-	ModeIXUSR = 00100
+	modeIRWXU = 00700
+	modeIRUSR = 00400
+	modeIWUSR = 00200
+	modeIXUSR = 00100
 
-	ModeIRWXG = 00070
-	ModeIRGRP = 00040
-	ModeIWGRP = 00020
-	ModeIXGRP = 00010
+	modeIRWXG = 00070
+	modeIRGRP = 00040
+	modeIWGRP = 00020
+	modeIXGRP = 00010
 
-	ModeIRWXO = 00007
-	ModeIROTH = 00004
-	ModeIWOTH = 00002
-	ModeIXOTH = 00001
+	modeIRWXO = 00007
+	modeIROTH = 00004
+	modeIWOTH = 00002
+	modeIXOTH = 00001
 
-	ModeIRUGO   = (ModeIRUSR | ModeIRGRP | ModeIROTH)
-	ModeIWUGO   = (ModeIWUSR | ModeIWGRP | ModeIWOTH)
-	ModeIXUGO   = (ModeIXUSR | ModeIXGRP | ModeIXOTH)
+	modeIRUGO = (modeIRUSR | modeIRGRP | modeIROTH)
+	modeIWUGO = (modeIWUSR | modeIWGRP | modeIWOTH)
+	modeIXUGO = (modeIXUSR | modeIXGRP | modeIXOTH)
 )

@@ -1,7 +1,9 @@
 package main
 
-import "testing"
-import "regexp"
+import (
+	"regexp"
+	"testing"
+)
 
 func TestSuffix(t *testing.T) {
 	r := regexp.MustCompile(`(\.[A-Za-z~][A-Za-z0-9~]*)+$`)
@@ -82,7 +84,6 @@ var examples = []string{
 }
 
 func TestVCMP(t *testing.T) {
-	/* Following tests taken from test-strverscmp.c */
 	if !(filevercmp("", "") == 0) {
 		t.Fail()
 	}

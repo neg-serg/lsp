@@ -130,10 +130,3 @@ func name(f *fileInfo) string {
 	}
 	return name
 }
-
-//ffis := make([]os.FileInfo, 0, len(fis))
-//for _, fi := range fis {
-//	if !strings.HasPrefix(fi.Name(), ".") {
-//		ffis = append(ffis, fi)
-//	}
-//}

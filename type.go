@@ -41,24 +41,22 @@ func colorType(mode fileMode, linkok bool) indicator {
 			switch {
 			case mode&syscall.S_ISUID != 0 && isColored(typeSetuid):
 				t = typeSetuid
-			case ((mode&syscall.S_ISGID) != 0 && isColored(typeSetgid)):
+			case mode&syscall.S_ISGID != 0 && isColored(typeSetgid):
 				t = typeSetgid
-			//case (isColored (C_CAP) && f->has_capability):
-			//  t = C_CAP;
-			case ((mode&modeIXUGO) != 0 && isColored(typeExec)):
+			case mode& // S_IXUGO
+				(syscall.S_IXUSR|syscall.S_IXGRP|syscall.S_IXOTH) != 0 &&
+				isColored(typeExec):
 				t = typeExec
-				//case ((1 < f->stat.st_nlink) && isColored (C_MULTIHARDLINK)):
-				//  t = C_MULTIHARDLINK;
 			}
 		} else if mode.isDir() {
 			t = typeDir
 			switch {
-			case (mode&syscall.S_ISVTX != 0) && (mode&modeIWOTH != 0) &&
+			case mode&syscall.S_ISVTX != 0 && mode&syscall.S_IWOTH != 0 &&
 				isColored(typeStickyOtherWritable):
 				t = typeStickyOtherWritable
-			case ((mode&modeIWOTH) != 0 && isColored(typeOtherWritable)):
+			case mode&syscall.S_IWOTH != 0 && isColored(typeOtherWritable):
 				t = typeOtherWritable
-			case ((mode&syscall.S_ISVTX) != 0 && isColored(typeSticky)):
+			case mode&syscall.S_ISVTX != 0 && isColored(typeSticky):
 				t = typeSticky
 			}
 		} else {

@@ -29,13 +29,6 @@ func init() {
 	flag.BoolVarP(all, "almost-all", "A", false, "show all")
 }
 
-const (
-	cLeftCol  = "\033[38;5;0m" + "├"
-	cRightCol = "\033[38;5;0m" + "┤" + cEnd
-	cCol      = "\033[38;5;0m" + "│" + cEnd
-	cSymDelim = " " + "\033[38;5;9m" + "→" + cEnd + " "
-)
-
 func main() {
 	parseLSColor()
 	flag.Parse()

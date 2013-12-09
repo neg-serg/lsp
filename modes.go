@@ -5,27 +5,6 @@ import (
 	"syscall"
 )
 
-const (
-	cESC = "\033["
-	cEnd = cESC + "0m"
-
-	cNone = cESC + "38;5;0m" + "—"
-
-	cChar     = cESC + "0m" + "c"
-	cDev      = cESC + "0m" + "b"
-	cDir      = cESC + "38;5;2;1m" + "d" + cEnd
-	cExec     = cESC + "38;5;131m" + "x"
-	cFifo     = cESC + "0m" + "p"
-	cLink     = cESC + "38;5;220;1m" + "l" + cEnd
-	cRead     = cESC + "38;5;2m" + "r"
-	cRes      = cESC + "38;5;220m" + "t"
-	cResOther = cESC + "38;5;220;1m" + "T" + cEnd
-	cSock     = cESC + "38;5;161m" + "s"
-	cUID      = cESC + "38;5;220m" + "S"
-	cUIDExec  = cESC + "38;5;161m" + "s"
-	cWrite    = cESC + "38;5;216m" + "w"
-)
-
 func typeletter(mode fileMode) string {
 	switch mode & syscall.S_IFMT {
 	// these are the most common, so test for them first.
@@ -37,7 +16,7 @@ func typeletter(mode fileMode) string {
 	case syscall.S_IFCHR:
 		return cChar
 	case syscall.S_IFBLK:
-		return cDev
+		return cBlock
 	case syscall.S_IFIFO:
 		return cFifo
 	case syscall.S_IFLNK:
@@ -118,9 +97,9 @@ func strmode(mode fileMode) string {
 
 	if mode&syscall.S_ISVTX != 0 {
 		if mode&syscall.S_IXOTH != 0 {
-			buf.WriteString(cRes)
+			buf.WriteString(cSticky)
 		} else {
-			buf.WriteString(cResOther)
+			buf.WriteString(cStickyO)
 		}
 	} else if mode&syscall.S_IXOTH != 0 {
 		buf.WriteString(cExec)

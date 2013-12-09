@@ -5,18 +5,6 @@ import (
 	"math"
 )
 
-const cSize = cESC + "38;5;216m"
-
-var cSizes = [...]string{
-	cESC + "38;5;7;1m" + "B" + cEnd,
-	cESC + "38;5;2;1m" + "K" + cEnd,
-	cESC + "38;5;14;1m" + "M" + cEnd,
-	cESC + "38;5;12;1m" + "G" + cEnd,
-	cEnd + "T",
-	cEnd + "P",
-	cEnd + "E",
-}
-
 // IEC Sizes; kibis of bits
 const (
 	Byte = 1

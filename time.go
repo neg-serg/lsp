@@ -5,16 +5,6 @@ import (
 	"time"
 )
 
-const (
-	cSecond = cESC + "38;5;12m"
-	cMinute = cESC + "38;5;9m"
-	cHour   = cESC + "38;5;1m"
-	cDay    = cESC + "38;5;8m"
-	cWeek   = cESC + "38;5;16m"
-	cMonth  = cESC + "38;5;16m"
-	cYear   = cESC + "38;5;0m"
-)
-
 // Time units
 const (
 	Second = 1

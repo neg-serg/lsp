@@ -36,20 +36,6 @@ const (
 	cSymDelim = " " + "\033[38;5;9m" + "→" + cEnd + " "
 )
 
-type fileList []*fileInfo
-
-func (p fileList) Len() int { return len(p) }
-func (p fileList) Less(a, b int) bool {
-	aF, bF := p[a], p[b]
-	aD, bD := aF.isDir(), bF.isDir()
-	if aD != bD {
-		return aD
-	}
-	sA, sB := aF.name, bF.name
-	return filevercmp(sA, sB) < 0
-}
-func (p fileList) Swap(i, j int) { p[i], p[j] = p[j], p[i] }
-
 func main() {
 	parseLSColor()
 	flag.Parse()
@@ -63,8 +49,7 @@ func main() {
 		if err != nil {
 			fmt.Println(err)
 		} else {
-			snfis := fileList(nfis)
-			sort.Sort(snfis)
+			sort.Sort(byVer(nfis))
 			fis = append(fis, nfis)
 		}
 	}

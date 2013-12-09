@@ -79,6 +79,7 @@ func (f *file) readdir(n int) (fi []*fileInfo, err error) {
 	}
 	return fi, err
 }
+
 func (f *file) readdirnames(n int) (names []string, err error) {
 	// If this file has no dirinfo, create one.
 	if f.dirinfo == nil {

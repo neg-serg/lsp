@@ -31,7 +31,7 @@ func typeletter(mode fileMode) string {
 var buf bytes.Buffer
 
 // create mode strings
-func strmode(mode fileMode) string {
+func strmode(mode fileMode) []byte {
 	buf.Reset()
 	buf.WriteString(typeletter(mode))
 
@@ -108,5 +108,5 @@ func strmode(mode fileMode) string {
 	}
 
 	buf.WriteString("\033[0m")
-	return buf.String()
+	return buf.Bytes()
 }

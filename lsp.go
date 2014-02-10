@@ -10,7 +10,9 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
+	"os"
 	"sort"
 	"syscall"
 
@@ -21,6 +23,9 @@ var (
 	all      = flag.BoolP("all", "a", false, "show all")
 	classify = flag.BoolP("classify", "F", false, "append indicator")
 	ctime    = flag.BoolP("ctime", "c", false, "ctime instead of modtime")
+	reverse  = flag.BoolP("reverse", "r", false, "reverse order while sorting")
+	sorttime = flag.BoolP("timesort", "t", false, "sort by time")
+	sortsize = flag.BoolP("sizesort", "S", false, "sort by size")
 	_        = flag.BoolP("list", "l", false, "noop")
 	_        = flag.BoolP("human-readable", "h", false, "noop")
 )
@@ -30,34 +35,46 @@ func init() {
 }
 
 func main() {
+	var b bytes.Buffer
 	parseLSColor()
 	flag.Parse()
+	var sortFunc sortFunc
+	if *sorttime {
+		sortFunc = sortByTime
+	} else if *sortsize {
+		sortFunc = sortBySize
+	} else {
+		sortFunc = sortByVer
+	}
+
 	args := flag.Args()
 	if len(args) == 0 {
 		args = []string{"."}
 	}
-	fis := make([]fileList, 0, len(args))
-	for _, name := range args {
-		nfis, err := ls(name)
+	for _, fname := range args {
+		nfis, err := ls(fname)
 		if err != nil {
 			fmt.Println(err)
-		} else {
-			sort.Sort(byVer(nfis))
-			fis = append(fis, nfis)
+			continue
 		}
-	}
-
-	for _, fis := range fis {
-		for _, f := range fis {
-			fmt.Println(cLeftCol +
-				strmode(f.mode) +
-				cRightCol +
-				reltime(f.time) +
-				cCol +
-				size(f.size) +
-				cCol +
-				name(f))
+		sorter := sortFunc(nfis)
+		if *reverse {
+			sorter = sort.Reverse(sorter)
 		}
+		sort.Sort(sorter)
+		for _, f := range nfis {
+			b.Write([]byte(cLeftCol))
+			b.Write(strmode(f.mode))
+			b.Write([]byte(cRightCol))
+			b.WriteString(reltime(f.time))
+			b.Write([]byte(cCol))
+			b.WriteString(size(f.size))
+			b.Write([]byte(cCol))
+			b.WriteString(name(f))
+			b.WriteByte('\n')
+		}
+		b.WriteTo(os.Stdout)
+		b.Reset()
 	}
 }
 

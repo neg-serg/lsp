@@ -16,12 +16,10 @@ const (
 	Year   = 12 * Month
 )
 
-var now = time.Now()
+var now = time.Now().UnixNano()
 
-// Time formats a time into a relative string.
-// Time(someT) -> "3 weeks ago"
-func reltime(then time.Time) string {
-	diff := now.Sub(then) / time.Second
+func reltime(then int64) string {
+	diff := (now - then) / 1e9
 
 	switch {
 	case diff <= Second:

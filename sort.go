@@ -1,16 +1,84 @@
 package main
 
-type fileList []*fileInfo
-type byVer fileList
+import (
+	"sort"
+)
 
-func (p byVer) Len() int { return len(p) }
-func (p byVer) Less(a, b int) bool {
-	aF, bF := p[a], p[b]
-	aD, bD := aF.isDir(), bF.isDir()
-	if aD != bD {
-		return aD
+type fileList []*fileInfo
+
+type sortFunc func(fileList) sort.Interface
+
+// Len is part of sort.Interface.
+func (fl fileList) Len() int { return len(fl) }
+
+// Swap is part of sort.Interface.
+func (fl fileList) Swap(i, j int) { fl[i], fl[j] = fl[j], fl[i] }
+
+//
+
+type sizeSort struct{ fileList }
+
+func (sf sizeSort) Less(i, j int) bool {
+	a, b := sf.fileList[i], sf.fileList[j]
+
+	if o := byIsDir(a, b); o != 0 {
+		return o == -1
 	}
-	sA, sB := aF.name, bF.name
-	return filevercmp(sA, sB) < 0
+
+	s := a.size - b.size
+	if s == 0 {
+		return filevercmp(a.name, b.name) < 0
+	}
+	return s < 0
 }
-func (p byVer) Swap(i, j int) { p[i], p[j] = p[j], p[i] }
+
+func sortBySize(fl fileList) sort.Interface { return sizeSort{fl} }
+
+//
+
+type timeSort struct{ fileList }
+
+func (sf timeSort) Less(i, j int) bool {
+	a, b := sf.fileList[i], sf.fileList[j]
+
+	if o := byIsDir(a, b); o != 0 {
+		return o == -1
+	}
+
+	s := a.time - b.time
+	if s == 0 {
+		return filevercmp(a.name, b.name) < 0
+	}
+	return s > 0
+}
+
+func sortByTime(fl fileList) sort.Interface { return timeSort{fl} }
+
+//
+
+type verSort struct{ fileList }
+
+func (sf verSort) Less(i, j int) bool {
+	a, b := sf.fileList[i], sf.fileList[j]
+
+	if o := byIsDir(a, b); o != 0 {
+		return o < 0
+	}
+
+	return filevercmp(a.name, b.name) < 0
+}
+
+func sortByVer(fl fileList) sort.Interface { return verSort{fl} }
+
+//
+
+func byIsDir(a, b *fileInfo) int {
+	ad, bd := a.isDir(), b.isDir()
+	if ad != bd {
+		if ad {
+			return -1
+		}
+		return 1
+	}
+	return 0
+}

@@ -11,7 +11,7 @@ type fileInfo struct {
 	name string
 	size int64
 	mode fileMode
-	time time.Time
+	time int64
 }
 
 func (fi *fileInfo) isDir() bool {
@@ -27,18 +27,13 @@ func (m fileMode) isRegular() bool {
 }
 
 // get info about file/directory name
-func ls(name string) ([]*fileInfo, error) {
+func ls(name string) (fileList, error) {
 	fi, err := stat(name)
 	if err != nil {
 		return nil, err
 	}
 	if fi.isDir() {
-		f, err := open(name)
-		if err != nil {
-			return nil, err
-		}
-		defer f.close()
-		fis, err := f.readdir(0)
+		fis, err := readdir(name)
 		if *all {
 			return fis, err
 		}
@@ -82,11 +77,13 @@ func fileInfoFromStat(st *syscall.Stat_t, name string) *fileInfo {
 		size: int64(st.Size),
 		mode: fileMode(st.Mode),
 	}
+	var t syscall.Timespec
 	if *ctime {
-		f.time = timespecToTime(st.Ctim)
+		t = st.Ctim
 	} else {
-		f.time = timespecToTime(st.Mtim)
+		t = st.Mtim
 	}
+	f.time = int64(t.Sec)*1e9 + int64(t.Nsec)
 	return f
 }
 

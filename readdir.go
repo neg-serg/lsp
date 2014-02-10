@@ -1,20 +1,12 @@
 package main
 
 import (
-	"io"
-	"runtime"
 	"syscall"
 )
 
 const (
 	blockSize = 4096
 )
-
-type file struct {
-	fd      int
-	name    string
-	dirinfo *dirInfo // nil unless directory being read
-}
 
 // Auxiliary information if the file describes a directory
 type dirInfo struct {
@@ -23,51 +15,32 @@ type dirInfo struct {
 	bufp int    // location of next record in buf.
 }
 
-func open(name string) (f *file, err error) {
+func open(name string) (int, error) {
 	r, e := syscall.Open(name, syscall.O_RDONLY|syscall.O_CLOEXEC, 0)
 	if e != nil {
-		return nil, &PathError{"open", name, e}
+		return -1, &PathError{"open", name, e}
 	}
 
 	if syscall.O_CLOEXEC == 0 { // O_CLOEXEC not supported
 		syscall.CloseOnExec(r)
 	}
 
-	return newFile(uintptr(r), name), nil
+	return r, nil
 }
 
-func newFile(fd uintptr, name string) *file {
-	fdi := int(fd)
-	if fdi < 0 {
-		return nil
+func readdir(fname string) (fi []*fileInfo, err error) {
+	fd, err := open(fname)
+	if err != nil {
+		return nil, err
 	}
-	f := &file{fd: fdi, name: name}
-	runtime.SetFinalizer(f, (*file).close)
-	return f
-}
+	defer syscall.Close(fd)
 
-func (f *file) close() error {
-	if f == nil || f.fd < 0 {
-		return syscall.EINVAL
-	}
-	var err error
-	if e := syscall.Close(f.fd); e != nil {
-		err = &PathError{"close", f.name, e}
-	}
-	f.fd = -1 // so it can't be closed again
-
-	// no need for a finalizer anymore
-	runtime.SetFinalizer(f, nil)
-	return err
-}
-
-func (f *file) readdir(n int) (fi []*fileInfo, err error) {
-	dirname := f.name
+	dirname := fname
 	if dirname == "" {
 		dirname = "."
 	}
 	dirname += "/"
-	names, err := f.readdirnames(n)
+	names, err := readdirnames(fd)
 	fi = make([]*fileInfo, len(names))
 	for i, filename := range names {
 		fip, lerr := lstat(dirname + filename)
@@ -80,28 +53,20 @@ func (f *file) readdir(n int) (fi []*fileInfo, err error) {
 	return fi, err
 }
 
-func (f *file) readdirnames(n int) (names []string, err error) {
-	// If this file has no dirinfo, create one.
-	if f.dirinfo == nil {
-		f.dirinfo = new(dirInfo)
-		// The buffer must be at least a block long.
-		f.dirinfo.buf = make([]byte, blockSize)
-	}
-	d := f.dirinfo
+func readdirnames(fd int) (names []string, err error) {
+	d := new(dirInfo)
+	d.buf = make([]byte, blockSize)
 
-	size := n
-	if size <= 0 {
-		size = 100
-		n = -1
-	}
+	size := 100
+	n := -1
 
-	names = make([]string, 0, size) // Empty with room to grow.
+	names = make([]string, 0, size)
 	for n != 0 {
 		// Refill the buffer if necessary
 		if d.bufp >= d.nbuf {
 			d.bufp = 0
 			var errno error
-			d.nbuf, errno = syscall.ReadDirent(f.fd, d.buf)
+			d.nbuf, errno = syscall.ReadDirent(fd, d.buf)
 			if errno != nil {
 				return names, NewSyscallError("readdirent", errno)
 			}
@@ -115,9 +80,6 @@ func (f *file) readdirnames(n int) (names []string, err error) {
 		nb, nc, names = syscall.ParseDirent(d.buf[d.bufp:d.nbuf], n, names)
 		d.bufp += nb
 		n -= nc
-	}
-	if n >= 0 && len(names) == 0 {
-		return names, io.EOF
 	}
 	return names, nil
 }

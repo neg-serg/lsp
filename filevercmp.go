@@ -21,25 +21,23 @@ func isDigit(c byte) bool {
 // Scan the string *STR and return a pointer to the matching suffix, or
 // NULL if not found.  Upon return, *STR points to terminating NUL.
 func suffixIndex(s string) int {
-	readAlpha := false
-	match := -1
-	for i := 0; i < len(s); i++ {
+	readAlphat := false
+	matched := 0
+	j := 0
+	for i := len(s)-1; i >= 0; i-- {
 		c := s[i]
-		if readAlpha {
-			readAlpha = false
-			if !isAlpha(c) && c != '~' {
-				match = -1
-			}
-		} else if '.' == c {
-			readAlpha = true
-			if match == -1 {
-				match = i
-			}
-		} else if !isAlnum(c) && c != '~' {
-			match = -1
+		if isAlpha(c) || c == '~' {
+			readAlphat = true
+		} else if readAlphat && c == '.' {
+			matched = j + 1
+		} else if isDigit(c) {
+			readAlphat = false
+		} else {
+			break
 		}
+		j++
 	}
-	return match
+	return len(s) - matched
 }
 
 // verrevcmp helper function
@@ -109,8 +107,6 @@ func verrevcmp(a, b string) int {
 
 // Compare version strings s1 and s2
 func filevercmp(s1, s2 string) int {
-	var result int
-
 	// easy comparison to see if strings are identical
 	if s1 == s2 {
 		return 0
@@ -133,32 +129,24 @@ func filevercmp(s1, s2 string) int {
 	}
 
 	// special handle for other hidden files
-	switch {
-	case (s1[0] == '.' && s2[0] != '.'):
-		return -1
-	case (s1[0] != '.' && s2[0] == '.'):
+	if s1[0] == '.' {
+		if s2[0] == '.' {
+			s1 = s1[1:]
+			s2 = s2[1:]
+		} else {
+			return -1
+		}
+	} else if s2[0] == '.' {
 		return 1
-	}
-	if s1[0] == '.' && s2[0] == '.' {
-		s1 = s1[1:]
-		s2 = s2[1:]
 	}
 
 	// file suffixes
-	s1SufIndex := suffixIndex(s1)
-	s2SufIndex := suffixIndex(s2)
+	s1i := suffixIndex(s1)
+	s2i := suffixIndex(s2)
+	s1Cut, s1Suf := s1[:s1i], s1[s1i:]
+	s2Cut, s2Suf := s2[:s2i], s2[s2i:]
 
-	var s1Cut, s2Cut = s1, s2
-	var s1Suf, s2Suf string
-	if s1SufIndex != -1 {
-		s1Cut = s1[:s1SufIndex]
-		s1Suf = s1[s1SufIndex:]
-	}
-	if s2SufIndex != -1 {
-		s2Cut = s2[:s2SufIndex]
-		s2Suf = s2[s2SufIndex:]
-	}
-
+	var result int
 	// restore file suffixes if strings are identical after "cut"
 	if s1Cut == s2Cut {
 		result = verrevcmp(s1Suf, s2Suf)

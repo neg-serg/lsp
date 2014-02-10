@@ -139,3 +139,9 @@ func TestVCMP(t *testing.T) {
 		}
 	}
 }
+
+func BenchmarkSuffix(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		filevercmp("", "")
+	}
+}

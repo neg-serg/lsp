@@ -20,14 +20,14 @@ const (
 func size(s int64) string {
 	const base = 1024
 	if s < 10 {
-		return fmt.Sprintf("%s%4d%s", cSize, s, cSizes[0])
+		return fmt.Sprintf("%s%3d%s", cSize, s, cSizes[0])
 	}
 	f := float64(s)
 	e := math.Floor(math.Log(f) / math.Log(base))
 	suffix := cSizes[int(e)]
 	val := f / math.Pow(base, e)
 	if val >= 10 {
-		return fmt.Sprintf("%s%4v%s", cSize, int(val), suffix)
+		return fmt.Sprintf("%s%3v%s", cSize, int(val), suffix)
 	}
-	return fmt.Sprintf("%s%4v%s", cSize, math.Floor(val*10)/10, suffix)
+	return fmt.Sprintf("%s%3v%s", cSize, math.Floor(val*10)/10, suffix)
 }

@@ -63,9 +63,7 @@ func main() {
 		}
 		sort.Sort(sorter)
 		for _, f := range nfis {
-			b.Write([]byte(cLeftCol))
 			b.Write(strmode(f.mode))
-			b.Write([]byte(cRightCol))
 			b.WriteString(reltime(f.time))
 			b.Write([]byte(cCol))
 			b.WriteString(size(f.size))

@@ -6,10 +6,8 @@ const (
 )
 
 const (
-	cLeftCol  = cESC + "38;5;0m" + "├"        // Left column
-	cRightCol = cESC + "38;5;0m" + "┤" + cEnd // Right column
-	cCol      = cESC + "38;5;0m" + "│" + cEnd // Middle columns
-	cSymDelim = " " + cESC + "38;5;9m" +      // Symlink -> symlink target
+	cCol      = " "                      // Column delimiters
+	cSymDelim = " " + cESC + "38;5;9m" + // Symlink -> symlink target
 		"→" + cEnd + " "
 )
 
@@ -39,8 +37,8 @@ const (
 	cMinute = cESC + "38;5;9m"
 	cHour   = cESC + "38;5;1m"
 	cDay    = cESC + "38;5;8m"
-	cWeek   = cESC + "38;5;16m"
-	cMonth  = cESC + "38;5;16m"
+	cWeek   = cESC + "38;5;237m"
+	cMonth  = cESC + "38;5;237m"
 	cYear   = cESC + "38;5;0m"
 )
 

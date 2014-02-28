@@ -19,6 +19,7 @@ const (
 var now = time.Now().UnixNano()
 
 func reltime(then int64) string {
+	const f = "%3d"
 	diff := (now - then) / 1e9
 
 	switch {
@@ -27,37 +28,37 @@ func reltime(then int64) string {
 
 	case diff < Minute:
 		return cSecond +
-			fmt.Sprintf("%3d", diff) +
+			fmt.Sprintf(f, diff) +
 			"s" + cEnd
 
 	case diff < Hour:
 		return cMinute +
-			fmt.Sprintf("%3d", diff/Minute) +
+			fmt.Sprintf(f, diff/Minute) +
 			"m" + cEnd
 
 	case diff < Hour*36:
 		return cHour +
-			fmt.Sprintf("%3d", diff/Hour) +
+			fmt.Sprintf(f, diff/Hour) +
 			"h" + cEnd
 
 	case diff < Month:
 		return cDay +
-			fmt.Sprintf("%3d", diff/Day) +
+			fmt.Sprintf(f, diff/Day) +
 			"d" + cEnd
 
 	case diff < Year:
 		return cWeek +
-			fmt.Sprintf("%3d", diff/Week) +
+			fmt.Sprintf(f, diff/Week) +
 			"w" + cEnd
 
 	//case diff < Year:
 	//	return cMonth +
-	//		fmt.Sprintf("%3d", diff/Month) +
+	//		fmt.Sprintf(f, diff/Month) +
 	//		"mon" + cEnd
 
 	default:
 		return cYear +
-			fmt.Sprintf("%3d", diff/Year) +
+			fmt.Sprintf(f, diff/Year) +
 			"y" + cEnd
 	}
 }

@@ -52,11 +52,18 @@ func main() {
 		args = []string{"."}
 	}
 	for _, fname := range args {
-		nfis, err := ls(fname)
+		nfis, isdir, err := ls(fname)
 		if err != nil {
 			fmt.Println(err)
 			continue
 		}
+
+		var cwd string
+		if isdir {
+			cwd, _ = os.Getwd()
+			os.Chdir(fname)
+		}
+
 		sorter := sortFunc(nfis)
 		if *reverse {
 			sorter = sort.Reverse(sorter)
@@ -73,6 +80,10 @@ func main() {
 		}
 		b.WriteTo(os.Stdout)
 		b.Reset()
+
+		if isdir {
+			os.Chdir(cwd)
+		}
 	}
 }
 

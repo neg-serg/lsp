@@ -28,17 +28,13 @@ func open(name string) (int, error) {
 	return r, nil
 }
 
-func readdir(fname string) (fi []*fileInfo, err error) {
-	fd, err := open(fname)
+func readdir(dirname string) (fi []*fileInfo, err error) {
+	fd, err := open(dirname)
 	if err != nil {
 		return nil, err
 	}
 	defer syscall.Close(fd)
 
-	dirname := fname
-	if dirname == "" {
-		dirname = "."
-	}
 	dirname += "/"
 	names, err := readdirnames(fd)
 	fi = make([]*fileInfo, len(names))

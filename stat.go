@@ -27,15 +27,15 @@ func (m fileMode) isRegular() bool {
 }
 
 // get info about file/directory name
-func ls(name string) (fileList, error) {
+func ls(name string) (fileList, bool, error) {
 	fi, err := stat(name)
 	if err != nil {
-		return nil, err
+		return nil, false, err
 	}
 	if fi.isDir() {
 		fis, err := readdir(name)
 		if *all {
-			return fis, err
+			return fis, true, err
 		}
 		filtered := make([]*fileInfo, 0, len(fis))
 		for _, fi := range fis {
@@ -44,9 +44,9 @@ func ls(name string) (fileList, error) {
 			}
 			filtered = append(filtered, fi)
 		}
-		return filtered, err
+		return filtered, true, err
 	}
-	return []*fileInfo{fi}, nil
+	return []*fileInfo{fi}, false, nil
 }
 
 // stat returns a fileInfo describing the named file

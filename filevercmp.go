@@ -24,7 +24,7 @@ func suffixIndex(s string) int {
 	readAlphat := false
 	matched := 0
 	j := 0
-	for i := len(s)-1; i >= 0; i-- {
+	for i := len(s) - 1; i >= 0; i-- {
 		c := s[i]
 		if isAlpha(c) || c == '~' {
 			readAlphat = true

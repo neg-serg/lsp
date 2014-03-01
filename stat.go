@@ -1,6 +1,7 @@
 package main
 
 import (
+	"strings"
 	"syscall"
 	"time"
 )
@@ -109,7 +110,7 @@ func readlink(name string) (string, error) {
 			return "", &PathError{"readlink", name, e}
 		}
 		if n < len {
-			return string(b[0:n]), nil
+			return strings.TrimRight(string(b[0:n]), "/"), nil
 		}
 	}
 }

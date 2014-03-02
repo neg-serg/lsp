@@ -33,30 +33,28 @@ const (
 
 func colorType(mode fileMode, linkok bool) indicator {
 	var t indicator
-	if !linkok && isColored(typeMissing) {
+	if !linkok {
 		t = typeMissing
 	} else {
 		if mode.isRegular() {
 			t = typeFile
 			switch {
-			case mode&syscall.S_ISUID != 0 && isColored(typeSetuid):
+			case mode&syscall.S_ISUID != 0:
 				t = typeSetuid
-			case mode&syscall.S_ISGID != 0 && isColored(typeSetgid):
+			case mode&syscall.S_ISGID != 0:
 				t = typeSetgid
 			case mode& // S_IXUGO
-				(syscall.S_IXUSR|syscall.S_IXGRP|syscall.S_IXOTH) != 0 &&
-				isColored(typeExec):
+				(syscall.S_IXUSR|syscall.S_IXGRP|syscall.S_IXOTH) != 0:
 				t = typeExec
 			}
 		} else if mode.isDir() {
 			t = typeDir
 			switch {
-			case mode&syscall.S_ISVTX != 0 && mode&syscall.S_IWOTH != 0 &&
-				isColored(typeStickyOtherWritable):
+			case mode&syscall.S_ISVTX != 0 && mode&syscall.S_IWOTH != 0:
 				t = typeStickyOtherWritable
-			case mode&syscall.S_IWOTH != 0 && isColored(typeOtherWritable):
+			case mode&syscall.S_IWOTH != 0:
 				t = typeOtherWritable
-			case mode&syscall.S_ISVTX != 0 && isColored(typeSticky):
+			case mode&syscall.S_ISVTX != 0:
 				t = typeSticky
 			}
 		} else {
@@ -78,9 +76,7 @@ func colorType(mode fileMode, linkok bool) indicator {
 		}
 	}
 	if t == typeLink && !linkok {
-		if isColored(typeOrphan) {
-			t = typeOrphan
-		}
+		t = typeOrphan
 	}
 	return t
 }

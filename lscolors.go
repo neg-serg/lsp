@@ -33,18 +33,16 @@ var lsColorTypes = [...]string{
 	"\033[K", // "cl": clear to end of line
 }
 
-func isColored(t indicator) bool {
-	return lsColorTypes[t] != ""
-}
-
 func color(name string, in indicator) string {
 	if in == typeFile {
-		for i := 0; i < len(name); i++ {
-			if name[i] == '.' {
-				if v, ok := lsColorSuffix[name[i:]]; ok {
-					return v
-				}
+		for i := len(name) - 1; i >= 0; i-- {
+			if name[i] != '.' {
+				continue
 			}
+			if v, ok := lsColorSuffix[name[i:]]; ok {
+				return v
+			}
+			break
 		}
 	}
 	return lsColorTypes[in]

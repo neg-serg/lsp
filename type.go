@@ -36,7 +36,7 @@ func colorType(mode fileMode, linkok bool) indicator {
 	if !linkok {
 		t = typeMissing
 	} else {
-		if mode.isRegular() {
+		if mode&syscall.S_IFMT == syscall.S_IFREG {
 			t = typeFile
 			switch {
 			case mode&syscall.S_ISUID != 0:
@@ -47,7 +47,7 @@ func colorType(mode fileMode, linkok bool) indicator {
 				(syscall.S_IXUSR|syscall.S_IXGRP|syscall.S_IXOTH) != 0:
 				t = typeExec
 			}
-		} else if mode.isDir() {
+		} else if mode&syscall.S_IFMT == syscall.S_IFDIR {
 			t = typeDir
 			switch {
 			case mode&syscall.S_ISVTX != 0 && mode&syscall.S_IWOTH != 0:

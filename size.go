@@ -17,17 +17,19 @@ const (
 )
 
 // Human readable bytes
-func size(s int64) string {
+func size(b writer, s int64) {
 	const base = 1024
 	if s < 10 {
-		return fmt.Sprintf("%s%3d%s", cSize, s, cSizes[0])
+		fmt.Fprintf(b, "%s%3d%s", cSize, s, cSizes[0])
+		return
 	}
 	f := float64(s)
 	e := math.Floor(math.Log(f) / math.Log(base))
 	suffix := cSizes[int(e)]
 	val := f / math.Pow(base, e)
 	if val >= 10 {
-		return fmt.Sprintf("%s%3v%s", cSize, int(val), suffix)
+		fmt.Fprintf(b, "%s%3v%s", cSize, int(val), suffix)
+	} else {
+		fmt.Fprintf(b, "%s%3v%s", cSize, math.Floor(val*10)/10, suffix)
 	}
-	return fmt.Sprintf("%s%3v%s", cSize, math.Floor(val*10)/10, suffix)
 }

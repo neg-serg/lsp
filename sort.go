@@ -2,6 +2,7 @@ package main
 
 import (
 	"sort"
+	"syscall"
 )
 
 type fileList []*fileInfo
@@ -15,14 +16,16 @@ func (fl fileList) Len() int { return len(fl) }
 func (fl fileList) Swap(i, j int) { fl[i], fl[j] = fl[j], fl[i] }
 
 //
+// Size
+//
 
 type sizeSort struct{ fileList }
 
 func (sf sizeSort) Less(i, j int) bool {
 	a, b := sf.fileList[i], sf.fileList[j]
-
-	if o := byIsDir(a, b); o != 0 {
-		return o == -1
+	ad := a.mode&syscall.S_IFMT == syscall.S_IFDIR
+	if ad != (b.mode&syscall.S_IFMT == syscall.S_IFDIR) {
+		return ad
 	}
 
 	s := a.size - b.size
@@ -35,14 +38,16 @@ func (sf sizeSort) Less(i, j int) bool {
 func sortBySize(fl fileList) sort.Interface { return sizeSort{fl} }
 
 //
+// Time
+//
 
 type timeSort struct{ fileList }
 
 func (sf timeSort) Less(i, j int) bool {
 	a, b := sf.fileList[i], sf.fileList[j]
-
-	if o := byIsDir(a, b); o != 0 {
-		return o == -1
+	ad := a.mode&syscall.S_IFMT == syscall.S_IFDIR
+	if ad != (b.mode&syscall.S_IFMT == syscall.S_IFDIR) {
+		return ad
 	}
 
 	s := a.time - b.time
@@ -55,30 +60,19 @@ func (sf timeSort) Less(i, j int) bool {
 func sortByTime(fl fileList) sort.Interface { return timeSort{fl} }
 
 //
+// Version
+//
 
 type verSort struct{ fileList }
 
 func (sf verSort) Less(i, j int) bool {
 	a, b := sf.fileList[i], sf.fileList[j]
-
-	if o := byIsDir(a, b); o != 0 {
-		return o < 0
+	ad := a.mode&syscall.S_IFMT == syscall.S_IFDIR
+	if ad != (b.mode&syscall.S_IFMT == syscall.S_IFDIR) {
+		return ad
 	}
 
 	return filevercmp(a.name, b.name) < 0
 }
 
 func sortByVer(fl fileList) sort.Interface { return verSort{fl} }
-
-//
-
-func byIsDir(a, b *fileInfo) int {
-	ad, bd := a.isDir(), b.isDir()
-	if ad != bd {
-		if ad {
-			return -1
-		}
-		return 1
-	}
-	return 0
-}

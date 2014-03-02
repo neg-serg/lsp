@@ -7,58 +7,58 @@ import (
 
 // Time units
 const (
-	Second = 1
-	Minute = 60 * Second
-	Hour   = 60 * Minute
-	Day    = 24 * Hour
-	Week   = 7 * Day
-	Month  = 30 * Day
-	Year   = 12 * Month
+	second = 1
+	minute = 60 * second
+	hour   = 60 * minute
+	day    = 24 * hour
+	week   = 7 * day
+	month  = 30 * day
+	year   = 12 * month
 )
 
 var now = time.Now().UnixNano()
 
-func reltime(then int64) string {
+func reltime(b writer, then int64) {
 	const f = "%3d"
 	diff := (now - then) / 1e9
 
 	switch {
-	case diff <= Second:
-		return cSecond + "  <s" + cEnd
+	case diff <= second:
+		b.WriteString(cSecond + "  <s" + cEnd)
 
-	case diff < Minute:
-		return cSecond +
-			fmt.Sprintf(f, diff) +
-			"s" + cEnd
+	case diff < minute:
+		b.WriteString(cSecond)
+		fmt.Fprintf(b, f, diff)
+		b.WriteString("s" + cEnd)
 
-	case diff < Hour:
-		return cMinute +
-			fmt.Sprintf(f, diff/Minute) +
-			"m" + cEnd
+	case diff < hour:
+		b.WriteString(cMinute)
+		fmt.Fprintf(b, f, diff/minute)
+		b.WriteString("m" + cEnd)
 
-	case diff < Hour*36:
-		return cHour +
-			fmt.Sprintf(f, diff/Hour) +
-			"h" + cEnd
+	case diff < hour*36:
+		b.WriteString(cHour)
+		fmt.Fprintf(b, f, diff/hour)
+		b.WriteString("h" + cEnd)
 
-	case diff < Month:
-		return cDay +
-			fmt.Sprintf(f, diff/Day) +
-			"d" + cEnd
+	case diff < month:
+		b.WriteString(cDay)
+		fmt.Fprintf(b, f, diff/day)
+		b.WriteString("d" + cEnd)
 
-	case diff < Year:
-		return cWeek +
-			fmt.Sprintf(f, diff/Week) +
-			"w" + cEnd
+	case diff < year:
+		b.WriteString(cWeek)
+		fmt.Fprintf(b, f, diff/week)
+		b.WriteString("w" + cEnd)
 
 	//case diff < Year:
-	//	return cMonth +
+	//	cMonth +
 	//		fmt.Sprintf(f, diff/Month) +
 	//		"mon" + cEnd
 
 	default:
-		return cYear +
-			fmt.Sprintf(f, diff/Year) +
-			"y" + cEnd
+		b.WriteString(cYear)
+		fmt.Fprintf(b, f, diff/year)
+		b.WriteString("y" + cEnd)
 	}
 }

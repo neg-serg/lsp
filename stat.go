@@ -15,27 +15,15 @@ type fileInfo struct {
 	time int64
 }
 
-func (fi *fileInfo) isDir() bool {
-	return fi.mode&syscall.S_IFMT == syscall.S_IFDIR
-}
-
-func (m fileMode) isDir() bool {
-	return m&syscall.S_IFMT == syscall.S_IFDIR
-}
-
-func (m fileMode) isRegular() bool {
-	return m&syscall.S_IFMT == syscall.S_IFREG
-}
-
 // get info about file/directory name
 func ls(name string) (fileList, bool, error) {
 	fi, err := stat(name)
 	if err != nil {
 		return nil, false, err
 	}
-	if fi.isDir() {
+	if fi.mode&syscall.S_IFMT == syscall.S_IFDIR {
 		fis, err := readdir(name)
-		if *all {
+		if args.all {
 			return fis, true, err
 		}
 		filtered := make([]*fileInfo, 0, len(fis))
@@ -79,7 +67,7 @@ func fileInfoFromStat(st *syscall.Stat_t, name string) *fileInfo {
 		mode: fileMode(st.Mode),
 	}
 	var t syscall.Timespec
-	if *ctime {
+	if args.ctime {
 		t = st.Ctim
 	} else {
 		t = st.Mtim

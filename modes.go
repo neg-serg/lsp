@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"syscall"
 )
 
@@ -28,13 +27,9 @@ func typeletter(mode fileMode) string {
 	return "?"
 }
 
-var buf bytes.Buffer
-
 // create mode strings
-func strmode(mode fileMode) []byte {
-	buf.Reset()
+func strmode(buf writer, mode fileMode) {
 	buf.WriteString(typeletter(mode))
-
 	if mode&syscall.S_IRUSR != 0 {
 		buf.WriteString(cRead)
 	} else {
@@ -108,5 +103,4 @@ func strmode(mode fileMode) []byte {
 	}
 
 	buf.WriteString("\033[0m")
-	return buf.Bytes()
 }

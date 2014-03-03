@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 )
 
@@ -92,7 +91,7 @@ func parseLSColor() {
 				if in, ok := indicatorNamesMap[k]; ok {
 					lsColorTypes[in] = lsc[ke+1 : i]
 				} else {
-					fmt.Printf("Unrecognized key: %s\n", k)
+					errf("Unrecognized key: %s\n", k)
 				}
 			}
 			kb = i + 1

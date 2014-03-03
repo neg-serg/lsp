@@ -52,9 +52,9 @@ func reltime(b writer, then int64) {
 		b.WriteString("w" + cEnd)
 
 	//case diff < Year:
-	//	cMonth +
-	//		fmt.Sprintf(f, diff/Month) +
-	//		"mon" + cEnd
+	//	b.WriteString(cMonth)
+	//	fmt.Fprintf(b, f, diff/Month) +
+	//	b.WriteString("mon" + cEnd)
 
 	default:
 		b.WriteString(cYear)

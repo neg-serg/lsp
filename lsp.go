@@ -1,5 +1,6 @@
 // TODO: switch to a better command line flag package
-// TODO: implement more GNU ls options
+// TODO: (maybe) implement more GNU ls options
+// TODO: more flexible colours
 
 //%ls_colors = (
 //	'README$'        => 11,
@@ -38,15 +39,6 @@ type lsargs struct {
 }
 
 var args = &lsargs{}
-
-//	all      = flag.BoolP("all", "a", false, "show all")
-//	classify = flag.BoolP("classify", "F", false, "append indicator")
-//	ctime    = flag.BoolP("ctime", "c", false, "ctime instead of modtime")
-//	reverse  = flag.BoolP("reverse", "r", false, "reverse order while sorting")
-//	sorttime = flag.BoolP("timesort", "t", false, "sort by time")
-//	sortsize = flag.BoolP("sizesort", "S", false, "sort by size")
-//	_        = flag.BoolP("list", "l", false, "noop")
-//	_        = flag.BoolP("human-readable", "h", false, "noop")
 
 func parseArgs() {
 	for _, s := range os.Args[1:] {

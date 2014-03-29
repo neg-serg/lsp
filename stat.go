@@ -9,71 +9,68 @@ import (
 type fileMode uint64
 
 type fileInfo struct {
-	name string
-	size int64
-	mode fileMode
-	time int64
+	name     string
+	size     int64
+	mode     fileMode
+	time     int64
+	linkok   bool
+	linkname string
+	linkmode fileMode
 }
 
 // get info about file/directory name
-func ls(name string) (fileList, bool, error) {
+func ls(name string) (fileList, error) {
 	fi, err := stat(name)
 	if err != nil {
-		return nil, false, err
+		return nil, err
 	}
 	if fi.mode&syscall.S_IFMT == syscall.S_IFDIR {
-		fis, err := readdir(name)
-		if args.all {
-			return fis, true, err
-		}
-		filtered := make([]*fileInfo, 0, len(fis))
-		for _, fi := range fis {
-			if len(fi.name) > 0 && fi.name[0] == '.' {
-				continue
-			}
-			filtered = append(filtered, fi)
-		}
-		return filtered, true, err
+		return readdir(name)
 	}
-	return []*fileInfo{fi}, false, nil
+	return []fileInfo{*fi}, nil
 }
 
-// stat returns a fileInfo describing the named file
-func stat(name string) (fi *fileInfo, err error) {
-	var stat syscall.Stat_t
-	err = syscall.Stat(name, &stat)
-	if err != nil {
-		return nil, &PathError{"stat", name, err}
-	}
-	return fileInfoFromStat(&stat, name), nil
-}
-
-// lstat returns a fileInfo describing the named file. If the file is a
-// symbolic link, the returned *fileInfo describes the symbolic link.
-// lstat makes no attempt to follow the link.
-func lstat(name string) (fi *fileInfo, err error) {
-	var stat syscall.Stat_t
-	err = syscall.Lstat(name, &stat)
-	if err != nil {
-		return nil, &PathError{"lstat", name, err}
-	}
-	return fileInfoFromStat(&stat, name), nil
-}
-
-func fileInfoFromStat(st *syscall.Stat_t, name string) *fileInfo {
-	f := &fileInfo{
-		name: basename(name),
-		size: int64(st.Size),
-		mode: fileMode(st.Mode),
-	}
+func gettime(st *syscall.Stat_t) int64 {
 	var t syscall.Timespec
 	if args.ctime {
 		t = st.Ctim
 	} else {
 		t = st.Mtim
 	}
-	f.time = int64(t.Sec)*1e9 + int64(t.Nsec)
-	return f
+	return int64(t.Sec)*1e9 + int64(t.Nsec)
+}
+
+// stat returns a fileInfo describing the named file
+func stat(name string) (*fileInfo, error) {
+	var stat syscall.Stat_t
+	err := syscall.Lstat(name, &stat)
+	if err != nil {
+		return nil, &PathError{"stat", name, err}
+	}
+
+	fi := &fileInfo{
+		name:   basename(name),
+		size:   int64(stat.Size),
+		mode:   fileMode(stat.Mode),
+		time:   gettime(&stat),
+		linkok: true,
+	}
+
+	if fi.mode&syscall.S_IFMT == syscall.S_IFLNK {
+		fi.linkname, err = readlink(name)
+		if err != nil {
+			fi.linkok = false
+			return fi, nil
+		}
+		err = syscall.Stat(name, &stat)
+		if err != nil {
+			fi.linkok = false
+			return fi, nil
+		}
+		fi.linkmode = fileMode(stat.Mode)
+	}
+
+	return fi, nil
 }
 
 // basename the leading directory name from path name

@@ -5,7 +5,7 @@ import (
 	"syscall"
 )
 
-type fileList []*fileInfo
+type fileList []fileInfo
 
 type sortFunc func(fileList) sort.Interface
 
@@ -15,6 +15,24 @@ func (fl fileList) Len() int { return len(fl) }
 // Swap is part of sort.Interface.
 func (fl fileList) Swap(i, j int) { fl[i], fl[j] = fl[j], fl[i] }
 
+func dirsort(a, b *fileInfo) int {
+	ad := a.mode&syscall.S_IFMT == syscall.S_IFDIR
+	if ad != (b.mode&syscall.S_IFMT == syscall.S_IFDIR) {
+		if ad {
+			return -1
+		}
+		return 1
+	}
+	ad = a.linkmode&syscall.S_IFMT == syscall.S_IFDIR
+	if ad != (b.linkmode&syscall.S_IFMT == syscall.S_IFDIR) {
+		if ad {
+			return -1
+		}
+		return 1
+	}
+	return 0
+}
+
 //
 // Size
 //
@@ -23,9 +41,8 @@ type sizeSort struct{ fileList }
 
 func (sf sizeSort) Less(i, j int) bool {
 	a, b := sf.fileList[i], sf.fileList[j]
-	ad := a.mode&syscall.S_IFMT == syscall.S_IFDIR
-	if ad != (b.mode&syscall.S_IFMT == syscall.S_IFDIR) {
-		return ad
+	if d := dirsort(&a, &b); d != 0 {
+		return d < 0
 	}
 
 	s := a.size - b.size
@@ -45,9 +62,8 @@ type timeSort struct{ fileList }
 
 func (sf timeSort) Less(i, j int) bool {
 	a, b := sf.fileList[i], sf.fileList[j]
-	ad := a.mode&syscall.S_IFMT == syscall.S_IFDIR
-	if ad != (b.mode&syscall.S_IFMT == syscall.S_IFDIR) {
-		return ad
+	if d := dirsort(&a, &b); d != 0 {
+		return d < 0
 	}
 
 	s := a.time - b.time
@@ -67,9 +83,8 @@ type verSort struct{ fileList }
 
 func (sf verSort) Less(i, j int) bool {
 	a, b := sf.fileList[i], sf.fileList[j]
-	ad := a.mode&syscall.S_IFMT == syscall.S_IFDIR
-	if ad != (b.mode&syscall.S_IFMT == syscall.S_IFDIR) {
-		return ad
+	if d := dirsort(&a, &b); d != 0 {
+		return d < 0
 	}
 
 	return filevercmp(a.name, b.name) < 0

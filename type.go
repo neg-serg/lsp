@@ -31,52 +31,41 @@ const (
 	typeClrToEol
 )
 
-func colorType(mode fileMode, linkok bool) indicator {
-	var t indicator
-	if !linkok {
-		t = typeMissing
-	} else {
-		if mode&syscall.S_IFMT == syscall.S_IFREG {
-			t = typeFile
-			switch {
-			case mode&syscall.S_ISUID != 0:
-				t = typeSetuid
-			case mode&syscall.S_ISGID != 0:
-				t = typeSetgid
-			case mode& // S_IXUGO
-				(syscall.S_IXUSR|syscall.S_IXGRP|syscall.S_IXOTH) != 0:
-				t = typeExec
-			}
-		} else if mode&syscall.S_IFMT == syscall.S_IFDIR {
-			t = typeDir
-			switch {
-			case mode&syscall.S_ISVTX != 0 && mode&syscall.S_IWOTH != 0:
-				t = typeStickyOtherWritable
-			case mode&syscall.S_IWOTH != 0:
-				t = typeOtherWritable
-			case mode&syscall.S_ISVTX != 0:
-				t = typeSticky
-			}
-		} else {
-			switch mode & syscall.S_IFMT {
-			case syscall.S_IFLNK:
-				t = typeLink
-			case syscall.S_IFIFO:
-				t = typeFifo
-			case syscall.S_IFSOCK:
-				t = typeSock
-			case syscall.S_IFCHR:
-				t = typeChr
-			case syscall.S_IFBLK:
-				t = typeBlk
-			default:
-				// anything else is classified as orphan
-				t = typeOrphan
-			}
+func colorType(mode fileMode) indicator {
+	switch mode & syscall.S_IFMT {
+	case syscall.S_IFREG:
+		switch {
+		case mode&syscall.S_ISUID != 0:
+			return typeSetuid
+		case mode&syscall.S_ISGID != 0:
+			return typeSetgid
+		case mode& // S_IXUGO
+			(syscall.S_IXUSR|syscall.S_IXGRP|syscall.S_IXOTH) != 0:
+			return typeExec
 		}
+		return typeFile
+	case syscall.S_IFDIR:
+		switch {
+		case mode&syscall.S_ISVTX != 0 && mode&syscall.S_IWOTH != 0:
+			return typeStickyOtherWritable
+		case mode&syscall.S_IWOTH != 0:
+			return typeOtherWritable
+		case mode&syscall.S_ISVTX != 0:
+			return typeSticky
+		}
+		return typeDir
+	case syscall.S_IFLNK:
+		return typeLink
+	case syscall.S_IFIFO:
+		return typeFifo
+	case syscall.S_IFSOCK:
+		return typeSock
+	case syscall.S_IFCHR:
+		return typeChr
+	case syscall.S_IFBLK:
+		return typeBlk
+	default:
+		// anything else is classified as orphan
+		return typeOrphan
 	}
-	if t == typeLink && !linkok {
-		t = typeOrphan
-	}
-	return t
 }

@@ -4,6 +4,8 @@ import (
 	"os"
 )
 
+var colorSymTarget bool
+
 var lsColorSuffix = make(map[string]string)
 var lsColorTypes = [...]string{
 	"\033[",  // "lc": Left of color sequence
@@ -98,5 +100,8 @@ func parseLSColor() {
 			i += 2
 			eq = false
 		}
+	}
+	if lsColorTypes[typeLink] == "target" {
+		colorSymTarget = true
 	}
 }

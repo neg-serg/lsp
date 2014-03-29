@@ -15,7 +15,6 @@ import (
 	"fmt"
 	"os"
 	"sort"
-	"syscall"
 )
 
 const shortUsage = "Usage: %s -[aAFcrtS] [file ...]\n"
@@ -98,16 +97,10 @@ func main() {
 	}
 
 	for _, fname := range args.rest {
-		nfis, isdir, err := ls(fname)
+		nfis, err := ls(fname)
 		if err != nil {
 			errp(err)
 			continue
-		}
-
-		var cwd string
-		if isdir {
-			cwd, _ = os.Getwd()
-			os.Chdir(fname)
 		}
 
 		sorter := sortFunc(nfis)
@@ -121,55 +114,56 @@ func main() {
 			b.WriteString(cCol)
 			size(b, f.size)
 			b.WriteString(cCol)
-			name(b, f)
+			name(b, &f)
 			b.WriteByte('\n')
-		}
-
-		if isdir {
-			os.Chdir(cwd)
 		}
 	}
 	b.Flush()
 }
 
 func name(b writer, f *fileInfo) {
-	var l *fileInfo
-	linkok := true
-	linkname := ""
-	mode := f.mode
-	if f.mode&syscall.S_IFMT == syscall.S_IFLNK {
-		var err error
-		linkname, err = readlink(f.name)
-		if err != nil {
-			linkok = false
+	var t indicator
+	if f.linkname != "" {
+		if !f.linkok {
+			t = typeOrphan
+		} else if colorSymTarget {
+			t = colorType(f.linkmode)
 		} else {
-			l, err = stat(linkname)
-			if err != nil {
-				linkok = false
-			} else {
-				mode = l.mode
-			}
+			t = colorType(f.mode)
 		}
+	} else {
+		t = colorType(f.mode)
 	}
-
-	t := colorType(mode, linkok)
-	cc := color(f.name, t)
-	if cc == "" {
+	c := color(f.name, t)
+	if c == "" {
 		b.WriteString(f.name)
 	} else {
 		b.WriteString(cESC)
-		b.WriteString(cc)
+		b.WriteString(c)
 		b.WriteByte('m')
 		b.WriteString(f.name)
 		b.WriteString(cEnd)
 	}
-	if linkname != "" {
-		b.WriteString(cSymDelim + cESC + "38;5;8;3m" + cESC)
-		b.WriteString(color(linkname, t))
-		b.WriteByte('m')
-		b.WriteString(linkname)
-		b.WriteString(cEnd)
+
+	if f.linkname != "" {
+		var lnt indicator
+		if !f.linkok {
+			lnt = typeMissing
+		} else {
+			lnt = colorType(f.linkmode)
+		}
+		lc := color(f.linkname, lnt)
+		if lc == "" {
+			b.WriteString(f.linkname)
+		} else {
+			b.WriteString(cSymDelim + cESC + "38;5;8;3m" + cESC)
+			b.WriteString(color(f.linkname, lnt))
+			b.WriteByte('m')
+			b.WriteString(f.linkname)
+			b.WriteString(cEnd)
+		}
 	}
+
 	if args.classify {
 		switch t {
 		case typeDir:

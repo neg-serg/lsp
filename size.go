@@ -28,7 +28,7 @@ func size(w writer, size int64) {
 	dec = (dec*1000/1024 + 50) / 100 % 10
 
 	fmt = nblank
-	if size >= 10 {
+	if size >= 10 || idx == 0 {
 		// value is >= 10: use "123M', " 12M" formats
 		buf[0] = fmt[size/100]
 		if size/100 != 0 {

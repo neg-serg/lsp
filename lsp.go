@@ -111,9 +111,9 @@ func main() {
 		for _, f := range nfis {
 			strmode(b, f.mode)
 			reltime(b, f.time)
-			b.WriteString(cCol)
+			b.Write(cCol)
 			size(b, f.size)
-			b.WriteString(cCol)
+			b.Write(cCol)
 			name(b, &f)
 			b.WriteByte('\n')
 		}
@@ -138,11 +138,11 @@ func name(b writer, f *fileInfo) {
 	if c == "" {
 		b.WriteString(f.name)
 	} else {
-		b.WriteString(cESC)
+		b.Write(cESC)
 		b.WriteString(c)
 		b.WriteByte('m')
 		b.WriteString(f.name)
-		b.WriteString(cEnd)
+		b.Write(cEnd)
 	}
 
 	if f.linkname != "" {
@@ -156,11 +156,14 @@ func name(b writer, f *fileInfo) {
 		if lc == "" {
 			b.WriteString(f.linkname)
 		} else {
-			b.WriteString(cSymDelim + cESC + "38;5;8;3m" + cESC)
+			b.Write(cSymDelim)
+			b.Write(cESC)
+			b.WriteString("38;5;8;3m")
+			b.Write(cESC)
 			b.WriteString(color(f.linkname, lnt))
 			b.WriteByte('m')
 			b.WriteString(f.linkname)
-			b.WriteString(cEnd)
+			b.Write(cEnd)
 		}
 	}
 

@@ -4,7 +4,7 @@ import (
 	"syscall"
 )
 
-func typeletter(mode fileMode) string {
+func typeletter(mode fileMode) []byte {
 	switch mode & syscall.S_IFMT {
 	// these are the most common, so test for them first.
 	case syscall.S_IFREG:
@@ -24,83 +24,81 @@ func typeletter(mode fileMode) string {
 	case syscall.S_IFSOCK:
 		return cSock
 	}
-	return "?"
+	return []byte("?")
 }
 
 // create mode strings
 func strmode(buf writer, mode fileMode) {
-	buf.WriteString(typeletter(mode))
+	buf.Write(typeletter(mode))
 	if mode&syscall.S_IRUSR != 0 {
-		buf.WriteString(cRead)
+		buf.Write(cRead)
 	} else {
-		buf.WriteString(cNone)
+		buf.Write(cNone)
 	}
 
 	if mode&syscall.S_IWUSR != 0 {
-		buf.WriteString(cWrite)
+		buf.Write(cWrite)
 	} else {
-		buf.WriteString(cNone)
+		buf.Write(cNone)
 	}
 
 	if mode&syscall.S_ISUID != 0 {
 		if mode&syscall.S_IXUSR != 0 {
-			buf.WriteString(cUIDExec)
+			buf.Write(cUIDExec)
 		} else {
-			buf.WriteString(cUID)
+			buf.Write(cUID)
 		}
 	} else if mode&syscall.S_IXUSR != 0 {
-		buf.WriteString(cExec)
+		buf.Write(cExec)
 	} else {
-		buf.WriteString(cNone)
+		buf.Write(cNone)
 	}
 
 	if mode&syscall.S_IRGRP != 0 {
-		buf.WriteString(cRead)
+		buf.Write(cRead)
 	} else {
-		buf.WriteString(cNone)
+		buf.Write(cNone)
 	}
 
 	if mode&syscall.S_IWGRP != 0 {
-		buf.WriteString(cWrite)
+		buf.Write(cWrite)
 	} else {
-		buf.WriteString(cNone)
+		buf.Write(cNone)
 	}
 
 	if mode&syscall.S_ISGID != 0 {
 		if mode&syscall.S_IXGRP != 0 {
-			buf.WriteString(cUIDExec)
+			buf.Write(cUIDExec)
 		} else {
-			buf.WriteString(cUID)
+			buf.Write(cUID)
 		}
 	} else if mode&syscall.S_IXGRP != 0 {
-		buf.WriteString(cExec)
+		buf.Write(cExec)
 	} else {
-		buf.WriteString(cNone)
+		buf.Write(cNone)
 	}
 
 	if mode&syscall.S_IROTH != 0 {
-		buf.WriteString(cRead)
+		buf.Write(cRead)
 	} else {
-		buf.WriteString(cNone)
+		buf.Write(cNone)
 	}
 
 	if mode&syscall.S_IWOTH != 0 {
-		buf.WriteString(cWrite)
+		buf.Write(cWrite)
 	} else {
-		buf.WriteString(cNone)
+		buf.Write(cNone)
 	}
 
 	if mode&syscall.S_ISVTX != 0 {
 		if mode&syscall.S_IXOTH != 0 {
-			buf.WriteString(cSticky)
+			buf.Write(cSticky)
 		} else {
-			buf.WriteString(cStickyO)
+			buf.Write(cStickyO)
 		}
 	} else if mode&syscall.S_IXOTH != 0 {
-		buf.WriteString(cExec)
+		buf.Write(cExec)
 	} else {
-		buf.WriteString(cNone)
+		buf.Write(cNone)
 	}
-
-	buf.WriteString("\033[0m")
 }

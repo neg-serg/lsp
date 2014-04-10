@@ -7,6 +7,8 @@ import (
 var colorSymTarget bool
 
 var lsColorSuffix = make(map[string]string)
+
+// TODO: use these more
 var lsColorTypes = [...]string{
 	"\033[",  // "lc": Left of color sequence
 	"m",      // "rc": Right of color sequence

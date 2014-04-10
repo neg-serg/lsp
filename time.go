@@ -24,41 +24,50 @@ func reltime(b writer, then int64) {
 
 	switch {
 	case diff <= second:
-		b.WriteString(cSecond + "  <s" + cEnd)
+		b.Write(cSecond)
+		b.Write([]byte("  <s"))
+		b.Write(cEnd)
 
 	case diff < minute:
-		b.WriteString(cSecond)
+		b.Write(cSecond)
 		fmt.Fprintf(b, f, diff)
-		b.WriteString("s" + cEnd)
+		b.WriteByte('s')
+		b.Write(cEnd)
 
 	case diff < hour:
-		b.WriteString(cMinute)
+		b.Write(cMinute)
 		fmt.Fprintf(b, f, diff/minute)
-		b.WriteString("m" + cEnd)
+		b.WriteByte('m')
+		b.Write(cEnd)
 
 	case diff < hour*36:
-		b.WriteString(cHour)
+		b.Write(cHour)
 		fmt.Fprintf(b, f, diff/hour)
-		b.WriteString("h" + cEnd)
+		b.WriteByte('h')
+		b.Write(cEnd)
 
 	case diff < month:
-		b.WriteString(cDay)
+		b.Write(cDay)
 		fmt.Fprintf(b, f, diff/day)
-		b.WriteString("d" + cEnd)
+		b.WriteByte('d')
+		b.Write(cEnd)
 
 	case diff < year:
-		b.WriteString(cWeek)
+		b.Write(cWeek)
 		fmt.Fprintf(b, f, diff/week)
-		b.WriteString("w" + cEnd)
+		b.WriteByte('w')
+		b.Write(cEnd)
 
 	//case diff < Year:
-	//	b.WriteString(cMonth)
+	//	b.Write(cMonth)
 	//	fmt.Fprintf(b, f, diff/Month) +
-	//	b.WriteString("mon" + cEnd)
+	//	b.WriteByte('y')
+	//	b.Write(cEnd)
 
 	default:
-		b.WriteString(cYear)
+		b.Write(cYear)
 		fmt.Fprintf(b, f, diff/year)
-		b.WriteString("y" + cEnd)
+		b.WriteByte('y')
+		b.Write(cEnd)
 	}
 }

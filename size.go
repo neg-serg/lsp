@@ -21,9 +21,12 @@ func size(w writer, size int64) {
 		size /= 1024
 	}
 	// round <1.05 && >=0.95 to 1
-	if dec < 105*1024/100 && dec >= 95*1024/100 {
+	if dec < 1024/100 && dec >= 95*1024/100 {
 		size = 1
 		idx++
+	}
+	if dec < 105*1024/100 && dec >= 1024/100 {
+		size = 1
 	}
 	dec = (dec*1000/1024 + 50) / 100 % 10
 

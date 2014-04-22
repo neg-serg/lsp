@@ -1,7 +1,5 @@
-// TODO: switch to a better command line flag package
 // TODO: (maybe) implement more GNU ls options
 // TODO: more flexible colours
-
 //%ls_colors = (
 //	'README$'        => 11,
 //	'Makefile$'      => $c[15],
@@ -17,85 +15,17 @@ import (
 	"sort"
 )
 
-const shortUsage = "Usage: %s -[aAFcrtS] [file ...]\n"
-const longUsage = `
-  -a, -A  Show all files
-  -F      Append file type indicator
-  -c      Use ctime
-  -r      Reverse sort
-  -t      Sort by time
-  -S      Sort by size
-`
+var args = parseArgs(os.Args[1:])
 
-type lsargs struct {
-	all      bool
-	classify bool
-	ctime    bool
-	reverse  bool
-	sorttime bool
-	sortsize bool
-	rest     []string
+func errp(a ...interface{}) {
+	fmt.Fprintf(os.Stderr, "%s: %s\n", os.Args[0], fmt.Sprint(a))
 }
 
-var args = &lsargs{}
-
-func parseArgs() {
-	for _, s := range os.Args[1:] {
-		if len(s) == 0 || s[0] != '-' || len(s) == 1 {
-			args.rest = append(args.rest, s)
-			continue
-		}
-		if s[1] == '-' && len(s) == 2 { // "--" ends args
-			break
-		}
-		for _, f := range s[1:] {
-			switch f {
-			case 'A', 'a':
-				args.all = true
-			case 'F':
-				args.classify = true
-			case 'c':
-				args.ctime = true
-			case 'r':
-				args.reverse = true
-			case 't':
-				args.sorttime = true
-				args.sortsize = false
-			case 'S':
-				args.sorttime = false
-				args.sortsize = true
-			case 'h':
-				fmt.Printf(shortUsage, os.Args[0])
-				fmt.Print(longUsage)
-				os.Exit(0)
-			default:
-				errf("unsupported argument '%c'", f)
-				os.Exit(1)
-			}
-		}
-	}
-	if len(args.rest) == 0 {
-		args.rest = []string{"."}
-	}
-}
-
-func errp(a ...interface{})           { fmt.Fprintln(os.Stderr, a...) }
 func errf(f string, a ...interface{}) { fmt.Fprintf(os.Stderr, f, a...) }
 
 func main() {
-	var b = bufio.NewWriter(os.Stdout)
-	parseArgs()
 	parseLSColor()
-
-	var sortFunc sortFunc
-	if args.sorttime {
-		sortFunc = sortByTime
-	} else if args.sortsize {
-		sortFunc = sortBySize
-	} else {
-		sortFunc = sortByVer
-	}
-
+	var b = bufio.NewWriter(os.Stdout)
 	for _, fname := range args.rest {
 		nfis, err := ls(fname)
 		if err != nil {
@@ -103,7 +33,7 @@ func main() {
 			continue
 		}
 
-		sorter := sortFunc(nfis)
+		sorter := args.sorter(nfis)
 		if args.reverse {
 			sorter = sort.Reverse(sorter)
 		}

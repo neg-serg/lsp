@@ -49,7 +49,7 @@ func (sf sizeSort) Less(i, j int) bool {
 	if s == 0 {
 		return filevercmp(a.name, b.name) < 0
 	}
-	return s < 0
+	return s > 0
 }
 
 func sortBySize(fl fileList) sort.Interface { return sizeSort{fl} }

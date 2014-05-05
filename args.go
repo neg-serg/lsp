@@ -40,12 +40,13 @@ func parseArgs(args []string) *lsargs {
 		sorter:   sortByVer,
 		rest:     make([]string, 0, len(args)),
 	}
-	for _, s := range args {
+	for i, s := range args {
 		if len(s) == 0 || s[0] != '-' || len(s) == 1 {
 			la.rest = append(la.rest, s)
 			continue
 		}
 		if s[1] == '-' && len(s) == 2 { // "--" ends args
+			la.rest = append(la.rest, args[i+1:]...)
 			break
 		}
 		for i := 1; i < len(s); i++ {

@@ -14,56 +14,44 @@ const usage = `Usage: lsp -[aAFcrtS] [file ...]
   -S  Sort by size
   -h  Show this help`
 
-type lsargs struct {
+var args = struct {
 	all      bool
 	classify bool
 	ctime    bool
 	reverse  bool
+	profile  bool
 	sorter   sortFunc
 	rest     []string
+}{
+	sorter: sortByVer,
+	rest:   make([]string, 0, len(os.Args[1:])),
 }
 
-type unsupportedError struct {
-	Flag rune
-}
-
-func (e *unsupportedError) Error() string {
-	return fmt.Sprintf("unsupported argument '%c'", e.Flag)
-}
-
-func parseArgs(args []string) *lsargs {
-	la := lsargs{
-		all:      false,
-		classify: false,
-		ctime:    false,
-		reverse:  false,
-		sorter:   sortByVer,
-		rest:     make([]string, 0, len(args)),
-	}
-	for i, s := range args {
+func parseArgs() {
+	for i, s := range os.Args[1:] {
 		if len(s) == 0 || s[0] != '-' || len(s) == 1 {
-			la.rest = append(la.rest, s)
+			args.rest = append(args.rest, s)
 			continue
 		}
 		if s[1] == '-' && len(s) == 2 { // "--" ends args
-			la.rest = append(la.rest, args[i+1:]...)
+			args.rest = append(args.rest, os.Args[i+1:]...)
 			break
 		}
 		for i := 1; i < len(s); i++ {
 			f := s[i]
 			switch f {
 			case 'a':
-				la.all = true
+				args.all = true
 			case 'F':
-				la.classify = true
+				args.classify = true
 			case 'c':
-				la.ctime = true
+				args.ctime = true
 			case 'r':
-				la.reverse = true
+				args.reverse = true
 			case 't':
-				la.sorter = sortByTime
+				args.sorter = sortByTime
 			case 'S':
-				la.sorter = sortBySize
+				args.sorter = sortBySize
 			case 'h':
 				fmt.Fprintln(os.Stderr, usage)
 				os.Exit(0)
@@ -74,8 +62,7 @@ func parseArgs(args []string) *lsargs {
 			}
 		}
 	}
-	if len(la.rest) == 0 {
-		la.rest = []string{"."}
+	if len(args.rest) == 0 {
+		args.rest = []string{"."}
 	}
-	return &la
 }

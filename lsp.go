@@ -15,8 +15,6 @@ import (
 	"sort"
 )
 
-var args = parseArgs(os.Args[1:])
-
 func errp(a ...interface{}) {
 	fmt.Fprintf(os.Stderr, "%s: %s\n", os.Args[0], fmt.Sprint(a))
 }
@@ -24,6 +22,7 @@ func errp(a ...interface{}) {
 func errf(f string, a ...interface{}) { fmt.Fprintf(os.Stderr, f, a...) }
 
 func main() {
+	parseArgs()
 	parseLSColor()
 	var b = bufio.NewWriter(os.Stdout)
 	for _, fname := range args.rest {

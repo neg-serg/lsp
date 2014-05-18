@@ -1,19 +1,15 @@
 package main
 
-// Ported from gnulib
-
 func isAlpha(c byte) bool {
-	return ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'))
+	return (((c) | 32) - 'a') < 26
 }
 
 func isAlnum(c byte) bool {
-	return (c >= '0' && c <= '9') ||
-		(c >= 'A' && c <= 'Z') ||
-		(c >= 'a' && c <= 'z')
+	return c-'0' < 10 || (((c)|32)-'a') < 26
 }
 
 func isDigit(c byte) bool {
-	return (c >= '0' && c <= '9')
+	return c-'0' < 10
 }
 
 // Match a file suffix defined by this regular expression:
@@ -26,11 +22,12 @@ func suffixIndex(s string) int {
 	j := 0
 	for i := len(s) - 1; i >= 0; i-- {
 		c := s[i]
-		if isAlpha(c) || c == '~' {
+		// Manual inlining helps a lot here
+		if (((c)|32)-'a') < 26 || c == '~' { // isAlpha
 			readAlphat = true
 		} else if readAlphat && c == '.' {
 			matched = j + 1
-		} else if isDigit(c) {
+		} else if c-'0' < 10 { // isDigit
 			readAlphat = false
 		} else {
 			break
@@ -42,16 +39,14 @@ func suffixIndex(s string) int {
 
 // verrevcmp helper function
 func sortOrder(c byte) int {
-	switch {
-	case isDigit(c):
-		return 0
-	case isAlpha(c):
+	if isAlpha(c) {
 		return int(c)
-	case c == '~':
+	} else if isDigit(c) {
+		return 0
+	} else if c == '~' {
 		return -1
-	default:
-		return int(c) + 256
 	}
+	return int(c) + 256
 }
 
 // Slightly modified verrevcmp function from dpkg

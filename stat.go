@@ -1,10 +1,6 @@
 package main
 
-import (
-	"strings"
-	"syscall"
-	"time"
-)
+import "syscall"
 
 type fileMode uint64
 
@@ -27,17 +23,14 @@ func ls(name string) (fileList, error) {
 	if fi.mode&syscall.S_IFMT == syscall.S_IFDIR {
 		return readdir(name)
 	}
-	return []fileInfo{*fi}, nil
+	return []*fileInfo{fi}, nil
 }
 
 func gettime(st *syscall.Stat_t) int64 {
-	var t syscall.Timespec
 	if args.ctime {
-		t = st.Ctim
-	} else {
-		t = st.Mtim
+		return int64(st.Ctim.Sec)*1e9 + int64(st.Ctim.Nsec)
 	}
-	return int64(t.Sec)*1e9 + int64(t.Nsec)
+	return int64(st.Mtim.Sec)*1e9 + int64(st.Mtim.Nsec)
 }
 
 // stat returns a fileInfo describing the named file
@@ -83,8 +76,13 @@ func basename(name string) string {
 	return name
 }
 
-func timespecToTime(ts syscall.Timespec) time.Time {
-	return time.Unix(int64(ts.Sec), int64(ts.Nsec))
+func cleanRight(path []byte) []byte {
+	for i := len(path); i > 0 ; i-- {
+		if path[i-1] != '/' {
+			return path[:i]
+		}
+	}
+	return path
 }
 
 func readlink(name string) (string, error) {
@@ -95,7 +93,7 @@ func readlink(name string) (string, error) {
 			return "", &PathError{"readlink", name, e}
 		}
 		if n < len {
-			return strings.TrimRight(string(b[0:n]), "/"), nil
+			return string(cleanRight(b[0:n])), nil
 		}
 	}
 }

@@ -43,7 +43,7 @@ func main() {
 			b.Write(cCol)
 			size(b, f.size)
 			b.Write(cCol)
-			name(b, &f)
+			name(b, f)
 			b.WriteByte('\n')
 		}
 	}

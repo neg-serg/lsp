@@ -28,7 +28,7 @@ func open(name string) (int, error) {
 	return r, nil
 }
 
-func readdir(dirname string) ([]fileInfo, error) {
+func readdir(dirname string) ([]*fileInfo, error) {
 	fd, err := open(dirname)
 	if err != nil {
 		return nil, err
@@ -37,16 +37,17 @@ func readdir(dirname string) ([]fileInfo, error) {
 
 	dirname += "/"
 	names, err := readdirnames(fd)
-	fis := make([]fileInfo, 0, len(names))
+	fis := make([]*fileInfo, 0, len(names))
 	for _, filename := range names {
 		if len(filename) > 0 && filename[0] == '.' && !args.all {
 			continue
 		}
 		fi, _ := stat(dirname + filename)
 		if fi != nil {
-			fis = append(fis, *fi)
+			fis = append(fis, fi)
 		}
 	}
+
 	return fis, err
 }
 

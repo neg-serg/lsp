@@ -5,7 +5,7 @@ import (
 	"syscall"
 )
 
-type fileList []fileInfo
+type fileList []*fileInfo
 
 type sortFunc func(fileList) sort.Interface
 
@@ -33,15 +33,13 @@ func dirsort(a, b *fileInfo) int {
 	return 0
 }
 
-//
 // Size
-//
 
 type sizeSort struct{ fileList }
 
 func (sf sizeSort) Less(i, j int) bool {
 	a, b := sf.fileList[i], sf.fileList[j]
-	if d := dirsort(&a, &b); d != 0 {
+	if d := dirsort(a, b); d != 0 {
 		return d < 0
 	}
 
@@ -54,36 +52,30 @@ func (sf sizeSort) Less(i, j int) bool {
 
 func sortBySize(fl fileList) sort.Interface { return sizeSort{fl} }
 
-//
 // Time
-//
 
 type timeSort struct{ fileList }
 
 func (sf timeSort) Less(i, j int) bool {
 	a, b := sf.fileList[i], sf.fileList[j]
-	if d := dirsort(&a, &b); d != 0 {
+	if d := dirsort(a, b); d != 0 {
 		return d < 0
 	}
-
-	s := a.time - b.time
-	if s == 0 {
-		return filevercmp(a.name, b.name) < 0
+	if s := a.time - b.time; s != 0 {
+		return s > 0
 	}
-	return s > 0
+	return filevercmp(a.name, b.name) < 0
 }
 
 func sortByTime(fl fileList) sort.Interface { return timeSort{fl} }
 
-//
 // Version
-//
 
 type verSort struct{ fileList }
 
 func (sf verSort) Less(i, j int) bool {
 	a, b := sf.fileList[i], sf.fileList[j]
-	if d := dirsort(&a, &b); d != 0 {
+	if d := dirsort(a, b); d != 0 {
 		return d < 0
 	}
 

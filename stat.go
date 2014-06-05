@@ -77,7 +77,7 @@ func basename(name string) string {
 }
 
 func cleanRight(path []byte) []byte {
-	for i := len(path); i > 0 ; i-- {
+	for i := len(path); i > 0; i-- {
 		if path[i-1] != '/' {
 			return path[:i]
 		}

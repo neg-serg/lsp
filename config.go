@@ -13,7 +13,7 @@ var (
 	cCol = []byte(" ")
 
 	// Symlink -> symlink target
-	cSymDelim = []byte(" " + sESC + "38;5;9m" + "→" + sEnd + " ")
+	cSymDelim = []byte(" " + sESC + "38;5;8m" + "→" + sEnd + " ")
 )
 
 var (

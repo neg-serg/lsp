@@ -45,7 +45,7 @@ func (sf sizeSort) Less(i, j int) bool {
 
 	s := a.size - b.size
 	if s == 0 {
-		return filevercmp(a.name, b.name) < 0
+		return filevercmp(&a.name, &b.name) < 0
 	}
 	return s > 0
 }
@@ -64,7 +64,7 @@ func (sf timeSort) Less(i, j int) bool {
 	if s := a.time - b.time; s != 0 {
 		return s > 0
 	}
-	return filevercmp(a.name, b.name) < 0
+	return filevercmp(&a.name, &b.name) < 0
 }
 
 func sortByTime(fl fileList) sort.Interface { return timeSort{fl} }
@@ -79,7 +79,7 @@ func (sf verSort) Less(i, j int) bool {
 		return d < 0
 	}
 
-	return filevercmp(a.name, b.name) < 0
+	return filevercmp(&a.name, &b.name) < 0
 }
 
 func sortByVer(fl fileList) sort.Interface { return verSort{fl} }

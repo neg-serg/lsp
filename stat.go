@@ -5,12 +5,12 @@ import "syscall"
 type fileMode uint64
 
 type fileInfo struct {
-	name     string
+	name     sufIndexed
 	size     int64
 	mode     fileMode
 	time     int64
 	linkok   bool
-	linkname string
+	linkname sufIndexed
 	linkmode fileMode
 }
 
@@ -42,7 +42,7 @@ func stat(name string) (*fileInfo, error) {
 	}
 
 	fi := &fileInfo{
-		name:   basename(name),
+		name:   *newSufIndexed(basename(name)),
 		size:   int64(stat.Size),
 		mode:   fileMode(stat.Mode),
 		time:   gettime(&stat),
@@ -50,11 +50,12 @@ func stat(name string) (*fileInfo, error) {
 	}
 
 	if fi.mode&syscall.S_IFMT == syscall.S_IFLNK {
-		fi.linkname, err = readlink(name)
+		ln, err := readlink(name)
 		if err != nil {
 			fi.linkok = false
 			return fi, nil
 		}
+		fi.linkname = *newSufIndexed(ln)
 		err = syscall.Stat(name, &stat)
 		if err != nil {
 			fi.linkok = false

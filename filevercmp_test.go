@@ -83,37 +83,41 @@ var examples = []string{
 	"#.b#",
 }
 
+func c(a, b string) int {
+	return filevercmp(newSufIndexed(a), newSufIndexed(b))
+}
+
 func TestVCMP(t *testing.T) {
-	if !(filevercmp("", "") == 0) {
+	if !(c("", "") == 0) {
 		t.Fail()
 	}
-	if !(filevercmp("a", "a") == 0) {
+	if !(c("a", "a") == 0) {
 		t.Fail()
 	}
-	if !(filevercmp("a", "b") < 0) {
+	if !(c("a", "b") < 0) {
 		t.Fail()
 	}
-	if !(filevercmp("b", "a") > 0) {
+	if !(c("b", "a") > 0) {
 		t.Fail()
 	}
-	if !(filevercmp("a0", "a") > 0) {
+	if !(c("a0", "a") > 0) {
 		t.Fail()
 	}
-	if !(filevercmp("00", "01") < 0) {
+	if !(c("00", "01") < 0) {
 		t.Fail()
 	}
-	if !(filevercmp("01", "010") < 0) {
+	if !(c("01", "010") < 0) {
 		t.Fail()
 	}
-	if !(filevercmp("9", "10") < 0) {
+	if !(c("9", "10") < 0) {
 		t.Fail()
 	}
-	if !(filevercmp("0a", "0") > 0) {
+	if !(c("0a", "0") > 0) {
 		t.Fail()
 	}
 	for i, is := range examples {
 		for j, js := range examples {
-			result := filevercmp(is, js)
+			result := c(is, js)
 			if result < 0 {
 				if !(i < j) {
 					t.Logf(`verrevcmp("%s", "%s") = %d`,
@@ -142,6 +146,6 @@ func TestVCMP(t *testing.T) {
 
 func BenchmarkSuffix(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		filevercmp("", "")
+		c("", "")
 	}
 }

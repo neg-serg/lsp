@@ -1,5 +1,17 @@
 package main
 
+type sufIndexed struct {
+	str string
+	idx int
+}
+
+func newSufIndexed(s string) *sufIndexed {
+	if len(s) != 0 && s[0] == '.' {
+		return &sufIndexed{s, suffixIndex(s[1:])}
+	}
+	return &sufIndexed{s, suffixIndex(s)}
+}
+
 func isAlpha(c byte) bool {
 	return (((c) | 32) - 'a') < 26
 }
@@ -101,7 +113,8 @@ func verrevcmp(a, b string) int {
 }
 
 // Compare version strings s1 and s2
-func filevercmp(s1, s2 string) int {
+func filevercmp(sf1, sf2 *sufIndexed) int {
+	s1, s2 := sf1.str, sf2.str
 	// easy comparison to see if strings are identical
 	if s1 == s2 {
 		return 0
@@ -136,8 +149,8 @@ func filevercmp(s1, s2 string) int {
 	}
 
 	// file suffixes
-	s1i := suffixIndex(s1)
-	s2i := suffixIndex(s2)
+	s1i := sf1.idx
+	s2i := sf2.idx
 	s1Cut, s1Suf := s1[:s1i], s1[s1i:]
 	s2Cut, s2Suf := s2[:s2i], s2[s2i:]
 

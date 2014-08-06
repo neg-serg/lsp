@@ -52,7 +52,7 @@ func main() {
 
 func name(b writer, f *fileInfo) {
 	var t indicator
-	if f.linkname != "" {
+	if f.linkname.str != "" {
 		if !f.linkok {
 			t = typeOrphan
 		} else if colorSymTarget {
@@ -63,35 +63,35 @@ func name(b writer, f *fileInfo) {
 	} else {
 		t = colorType(f.mode)
 	}
-	c := color(f.name, t)
+	c := color(f.name.str, t)
 	if c == "" {
-		b.WriteString(f.name)
+		b.WriteString(f.name.str)
 	} else {
 		b.Write(cESC)
 		b.WriteString(c)
 		b.WriteByte('m')
-		b.WriteString(f.name)
+		b.WriteString(f.name.str)
 		b.Write(cEnd)
 	}
 
-	if f.linkname != "" {
+	if f.linkname.str != "" {
 		var lnt indicator
 		if !f.linkok {
 			lnt = typeMissing
 		} else {
 			lnt = colorType(f.linkmode)
 		}
-		lc := color(f.linkname, lnt)
+		lc := color(f.linkname.str, lnt)
 		if lc == "" {
-			b.WriteString(f.linkname)
+			b.WriteString(f.linkname.str)
 		} else {
 			b.Write(cSymDelim)
 			b.Write(cESC)
 			b.WriteString("38;5;8;3m")
 			b.Write(cESC)
-			b.WriteString(color(f.linkname, lnt))
+			b.WriteString(color(f.linkname.str, lnt))
 			b.WriteByte('m')
-			b.WriteString(f.linkname)
+			b.WriteString(f.linkname.str)
 			b.Write(cEnd)
 		}
 	}

@@ -26,13 +26,6 @@ func ls(name string) (fileList, error) {
 	return []*fileInfo{fi}, nil
 }
 
-func gettime(st *syscall.Stat_t) int64 {
-	if args.ctime {
-		return int64(st.Ctim.Sec)*1e9 + int64(st.Ctim.Nsec)
-	}
-	return int64(st.Mtim.Sec)*1e9 + int64(st.Mtim.Nsec)
-}
-
 // stat returns a fileInfo describing the named file
 func stat(name string) (*fileInfo, error) {
 	var stat syscall.Stat_t
@@ -84,17 +77,4 @@ func cleanRight(path []byte) []byte {
 		}
 	}
 	return path
-}
-
-func readlink(name string) (string, error) {
-	for len := 128; ; len *= 2 {
-		b := make([]byte, len)
-		n, e := syscall.Readlink(name, b)
-		if e != nil {
-			return "", &PathError{"readlink", name, e}
-		}
-		if n < len {
-			return string(cleanRight(b[0:n])), nil
-		}
-	}
 }

@@ -16,15 +16,15 @@ func (fl fileList) Len() int { return len(fl) }
 func (fl fileList) Swap(i, j int) { fl[i], fl[j] = fl[j], fl[i] }
 
 func dirsort(a, b *fileInfo) int {
-	ad := a.mode&syscall.S_IFMT == syscall.S_IFDIR
-	if ad != (b.mode&syscall.S_IFMT == syscall.S_IFDIR) {
+	ad := a.linkmode&syscall.S_IFMT == syscall.S_IFDIR
+	if ad != (b.linkmode&syscall.S_IFMT == syscall.S_IFDIR) {
 		if ad {
 			return -1
 		}
 		return 1
 	}
-	ad = a.linkmode&syscall.S_IFMT == syscall.S_IFDIR
-	if ad != (b.linkmode&syscall.S_IFMT == syscall.S_IFDIR) {
+	ad = a.mode&syscall.S_IFMT == syscall.S_IFDIR
+	if ad != (b.mode&syscall.S_IFMT == syscall.S_IFDIR) {
 		if ad {
 			return -1
 		}

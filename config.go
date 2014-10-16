@@ -6,6 +6,58 @@ const (
 )
 
 var (
+	// Column delimiters
+	nCol = []byte(" ")
+
+	// Symlink -> symlink target
+	nSymDelim = []byte(" " + "→" + " ")
+)
+
+var (
+	nNone = []byte("—") // Nothing else applies
+
+	nRead  = []byte("r") // Readable
+	nWrite = []byte("w") // Writeable
+	nExec  = []byte("x") // Executable
+
+	nDir   = []byte("d") // Directory
+	nChar  = []byte("c") // Character device
+	nBlock = []byte("b") // Block device
+	nFifo  = []byte("p") // FIFO
+	nLink  = []byte("l") // Symlink
+
+	nSock    = []byte("s") // Socket
+	nUID     = []byte("S") // SUID
+	nUIDExec = []byte("s") // SUID and executable
+	nSticky  = []byte("t") // Sticky
+	nStickyO = []byte("T") // Sticky, writeable by others
+)
+
+// Relative times
+var (
+	nSecond = []byte{}
+	nMinute = []byte{}
+	nHour   = []byte{}
+	nDay    = []byte{}
+	nWeek   = []byte{}
+	nMonth  = []byte{}
+	nYear   = []byte{}
+)
+
+// Number part of size
+var nSize = []byte{}
+
+var nSizes = [...][]byte{
+	[]byte("B"), // Byte
+	[]byte("K"), // Kibibyte
+	[]byte("M"), // Mebibyte
+	[]byte("G"), // Gibibyte
+	[]byte("T"), // Tebibyte
+	[]byte("P"), // Pebibyte
+	[]byte("E"), // Exbibyte
+}
+
+var (
 	cESC = []byte(sESC)
 	cEnd = []byte(sEnd)
 

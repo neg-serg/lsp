@@ -37,17 +37,63 @@ func main() {
 			sorter = sort.Reverse(sorter)
 		}
 		sort.Sort(sorter)
-		for _, f := range nfis {
-			strmode(b, f.mode)
-			reltime(b, f.time)
-			b.Write(cCol)
-			size(b, f.size)
-			b.Write(cCol)
-			name(b, f)
-			b.WriteByte('\n')
+		if args.color {
+			for _, f := range nfis {
+				strmode(b, f.mode)
+				reltime(b, f.time)
+				b.Write(cCol)
+				size(b, f.size)
+				b.Write(cCol)
+				name(b, f)
+				b.WriteByte('\n')
+			}
+		} else {
+			for _, f := range nfis {
+				strmodeNoColor(b, f.mode)
+				reltimeNoColor(b, f.time)
+				b.Write(nCol)
+				sizeNoColor(b, f.size)
+				b.Write(nCol)
+				nameNoColor(b, f)
+				b.WriteByte('\n')
+			}
 		}
 	}
 	b.Flush()
+}
+
+func nameNoColor(b writer, f *fileInfo) {
+	var t indicator
+	if f.linkname.str != "" {
+		if !f.linkok {
+			t = typeOrphan
+		} else if colorSymTarget {
+			t = colorType(f.linkmode)
+		} else {
+			t = colorType(f.mode)
+		}
+	} else {
+		t = colorType(f.mode)
+	}
+
+	b.WriteString(f.name.str)
+	if f.linkname.str != "" {
+		b.Write(nSymDelim)
+		b.WriteString(f.linkname.str)
+	}
+
+	if args.classify {
+		switch t {
+		case typeDir:
+			b.WriteByte('/')
+		case typeExec:
+			b.WriteByte('*')
+		case typeFifo:
+			b.WriteByte('|')
+		case typeSock:
+			b.WriteByte('=')
+		}
+	}
 }
 
 func name(b writer, f *fileInfo) {
@@ -89,7 +135,7 @@ func name(b writer, f *fileInfo) {
 			b.Write(cESC)
 			b.WriteString("38;5;8;3m")
 			b.Write(cESC)
-			b.WriteString(color(f.linkname.str, lnt))
+			b.WriteString(lc)
 			b.WriteByte('m')
 			b.WriteString(f.linkname.str)
 			b.Write(cEnd)

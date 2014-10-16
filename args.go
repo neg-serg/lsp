@@ -6,23 +6,25 @@ import (
 )
 
 const usage = `Usage: lsp -[aAFcrtS] [file ...]
+  -F  Append file type indicator
   -a  Show all files
   -c  Use ctime
-  -F  Append file type indicator
+  -u  Do not show colors
+  -S  Sort by size
   -r  Reverse sort
   -t  Sort by time
-  -S  Sort by size
   -h  Show this help`
 
 var args = struct {
 	all      bool
 	classify bool
+	color    bool
 	ctime    bool
 	reverse  bool
-	profile  bool
 	sorter   sortFunc
 	rest     []string
 }{
+	color:  true,
 	sorter: sortByVer,
 	rest:   make([]string, 0, len(os.Args[1:])),
 }
@@ -52,6 +54,8 @@ func parseArgs() {
 				args.sorter = sortByTime
 			case 'S':
 				args.sorter = sortBySize
+			case 'u':
+				args.color = false
 			case 'h':
 				fmt.Fprintln(os.Stderr, usage)
 				os.Exit(0)

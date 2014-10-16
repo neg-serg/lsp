@@ -79,6 +79,9 @@ var indicatorNamesMap = map[string]indicator{
 }
 
 func parseLSColor() {
+	if !args.color {
+		return
+	}
 	lsc := os.Getenv("LS_COLORS")
 	var eq bool
 	var kb, ke int

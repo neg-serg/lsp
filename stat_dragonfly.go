@@ -10,4 +10,3 @@ func gettime(st *syscall.Stat_t) int64 {
 	}
 	return int64(st.Mtim.Sec)*1e9 + int64(st.Mtim.Nsec)
 }
-

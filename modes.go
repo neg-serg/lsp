@@ -4,8 +4,8 @@ import (
 	"syscall"
 )
 
-// Unfortunately these are not defined in the syscall package on
-// dragonfly,freebsd,openbsd.
+// Unfortunately these are not defined in the syscall package on dragonfly,
+// freebsd or openbsd.
 const (
 	S_IRGRP = 0040
 	S_IWGRP = 0020

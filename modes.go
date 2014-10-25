@@ -4,6 +4,17 @@ import (
 	"syscall"
 )
 
+// Unfortunately these are not defined in the syscall package on
+// dragonfly,freebsd,openbsd.
+const (
+	S_IRGRP = 0040
+	S_IWGRP = 0020
+	S_IXGRP = 0010
+	S_IROTH = 0004
+	S_IWOTH = 0002
+	S_IXOTH = 0001
+)
+
 func typeletter(mode fileMode) []byte {
 	switch mode & syscall.S_IFMT {
 	// these are the most common, so test for them first.
@@ -77,49 +88,49 @@ func strmodeNoColor(buf writer, mode fileMode) {
 		buf.Write(nNone)
 	}
 
-	if mode&syscall.S_IRGRP != 0 {
+	if mode&S_IRGRP != 0 {
 		buf.Write(nRead)
 	} else {
 		buf.Write(nNone)
 	}
 
-	if mode&syscall.S_IWGRP != 0 {
+	if mode&S_IWGRP != 0 {
 		buf.Write(nWrite)
 	} else {
 		buf.Write(nNone)
 	}
 
 	if mode&syscall.S_ISGID != 0 {
-		if mode&syscall.S_IXGRP != 0 {
+		if mode&S_IXGRP != 0 {
 			buf.Write(nUIDExec)
 		} else {
 			buf.Write(nUID)
 		}
-	} else if mode&syscall.S_IXGRP != 0 {
+	} else if mode&S_IXGRP != 0 {
 		buf.Write(nExec)
 	} else {
 		buf.Write(nNone)
 	}
 
-	if mode&syscall.S_IROTH != 0 {
+	if mode&S_IROTH != 0 {
 		buf.Write(nRead)
 	} else {
 		buf.Write(nNone)
 	}
 
-	if mode&syscall.S_IWOTH != 0 {
+	if mode&S_IWOTH != 0 {
 		buf.Write(nWrite)
 	} else {
 		buf.Write(nNone)
 	}
 
 	if mode&syscall.S_ISVTX != 0 {
-		if mode&syscall.S_IXOTH != 0 {
+		if mode&S_IXOTH != 0 {
 			buf.Write(nSticky)
 		} else {
 			buf.Write(nStickyO)
 		}
-	} else if mode&syscall.S_IXOTH != 0 {
+	} else if mode&S_IXOTH != 0 {
 		buf.Write(nExec)
 	} else {
 		buf.Write(nNone)
@@ -153,49 +164,49 @@ func strmode(buf writer, mode fileMode) {
 		buf.Write(cNone)
 	}
 
-	if mode&syscall.S_IRGRP != 0 {
+	if mode&S_IRGRP != 0 {
 		buf.Write(cRead)
 	} else {
 		buf.Write(cNone)
 	}
 
-	if mode&syscall.S_IWGRP != 0 {
+	if mode&S_IWGRP != 0 {
 		buf.Write(cWrite)
 	} else {
 		buf.Write(cNone)
 	}
 
 	if mode&syscall.S_ISGID != 0 {
-		if mode&syscall.S_IXGRP != 0 {
+		if mode&S_IXGRP != 0 {
 			buf.Write(cUIDExec)
 		} else {
 			buf.Write(cUID)
 		}
-	} else if mode&syscall.S_IXGRP != 0 {
+	} else if mode&S_IXGRP != 0 {
 		buf.Write(cExec)
 	} else {
 		buf.Write(cNone)
 	}
 
-	if mode&syscall.S_IROTH != 0 {
+	if mode&S_IROTH != 0 {
 		buf.Write(cRead)
 	} else {
 		buf.Write(cNone)
 	}
 
-	if mode&syscall.S_IWOTH != 0 {
+	if mode&S_IWOTH != 0 {
 		buf.Write(cWrite)
 	} else {
 		buf.Write(cNone)
 	}
 
 	if mode&syscall.S_ISVTX != 0 {
-		if mode&syscall.S_IXOTH != 0 {
+		if mode&S_IXOTH != 0 {
 			buf.Write(cSticky)
 		} else {
 			buf.Write(cStickyO)
 		}
-	} else if mode&syscall.S_IXOTH != 0 {
+	} else if mode&S_IXOTH != 0 {
 		buf.Write(cExec)
 	} else {
 		buf.Write(cNone)

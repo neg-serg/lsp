@@ -40,15 +40,15 @@ func colorType(mode fileMode) indicator {
 		case mode&syscall.S_ISGID != 0:
 			return typeSetgid
 		case mode& // S_IXUGO
-			(syscall.S_IXUSR|syscall.S_IXGRP|syscall.S_IXOTH) != 0:
+			(syscall.S_IXUSR|S_IXGRP|S_IXOTH) != 0:
 			return typeExec
 		}
 		return typeFile
 	case syscall.S_IFDIR:
 		switch {
-		case mode&syscall.S_ISVTX != 0 && mode&syscall.S_IWOTH != 0:
+		case mode&syscall.S_ISVTX != 0 && mode&S_IWOTH != 0:
 			return typeStickyOtherWritable
-		case mode&syscall.S_IWOTH != 0:
+		case mode&S_IWOTH != 0:
 			return typeOtherWritable
 		case mode&syscall.S_ISVTX != 0:
 			return typeSticky

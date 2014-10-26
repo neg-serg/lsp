@@ -23,21 +23,24 @@ func errf(f string, a ...interface{}) { fmt.Fprintf(os.Stderr, f, a...) }
 
 func main() {
 	parseArgs()
-	parseLSColor()
-	var b = bufio.NewWriter(os.Stdout)
-	for _, fname := range args.rest {
+	colorize := (opts.color == colorAuto && isTTY(os.Stdout)) || opts.color == colorAlways
+	if colorize {
+		parseLSColor()
+	}
+	b := bufio.NewWriter(os.Stdout)
+	for _, fname := range opts.rest {
 		nfis, err := ls(fname)
 		if err != nil {
 			errp(err)
 			continue
 		}
 
-		sorter := args.sorter(nfis)
-		if args.reverse {
+		sorter := opts.sorter(nfis)
+		if opts.reverse {
 			sorter = sort.Reverse(sorter)
 		}
 		sort.Sort(sorter)
-		if args.color && isTTY(os.Stdout) {
+		if colorize {
 			for _, f := range nfis {
 				strmode(b, f.mode)
 				reltime(b, f.time)
@@ -82,7 +85,7 @@ func nameNoColor(b writer, f *fileInfo) {
 		b.WriteString(f.linkname.str)
 	}
 
-	if args.classify {
+	if opts.classify {
 		switch t {
 		case typeDir:
 			b.WriteByte('/')
@@ -142,7 +145,7 @@ func name(b writer, f *fileInfo) {
 		}
 	}
 
-	if args.classify {
+	if opts.classify {
 		switch t {
 		case typeDir:
 			b.WriteByte('/')

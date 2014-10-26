@@ -19,7 +19,7 @@ func readdir(dirname string) ([]*fileInfo, error) {
 	names, err := readdirnames(fd)
 	fis := make([]*fileInfo, 0, len(names))
 	for _, filename := range names {
-		if len(filename) > 0 && filename[0] == '.' && !args.all {
+		if len(filename) > 0 && filename[0] == '.' && !opts.all {
 			continue
 		}
 		fi, _ := stat(dirname + filename)

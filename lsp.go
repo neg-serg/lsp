@@ -37,7 +37,7 @@ func main() {
 			sorter = sort.Reverse(sorter)
 		}
 		sort.Sort(sorter)
-		if args.color {
+		if args.color && isTty(os.Stdout) {
 			for _, f := range nfis {
 				strmode(b, f.mode)
 				reltime(b, f.time)

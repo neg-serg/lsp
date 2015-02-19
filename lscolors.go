@@ -6,7 +6,7 @@ import (
 
 var colorSymTarget bool
 
-var lsColorSuffix = make(map[string]string)
+var lsColorSuffix map[string]string
 
 // TODO: use these more
 var lsColorTypes = [...]string{
@@ -80,6 +80,7 @@ var indicatorNamesMap = map[string]indicator{
 
 func parseLSColor() {
 	lsc := os.Getenv("LS_COLORS")
+	lsColorSuffix = make(map[string]string, len(lsc)/10)
 	var eq bool
 	var kb, ke int
 	for i := 0; i < len(lsc); i++ {

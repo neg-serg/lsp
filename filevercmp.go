@@ -5,11 +5,11 @@ type sufIndexed struct {
 	idx int
 }
 
-func newSufIndexed(s string) *sufIndexed {
+func newSufIndexed(s string) sufIndexed {
 	if len(s) != 0 && s[0] == '.' {
-		return &sufIndexed{s, suffixIndex(s[1:])}
+		return sufIndexed{s, suffixIndex(s[1:])}
 	}
-	return &sufIndexed{s, suffixIndex(s)}
+	return sufIndexed{s, suffixIndex(s)}
 }
 
 func isAlpha(c byte) bool {

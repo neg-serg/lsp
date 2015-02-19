@@ -18,12 +18,14 @@ func readdir(dirname string) ([]*fileInfo, error) {
 	dirname += "/"
 	names, err := readdirnames(fd)
 	fis := make([]*fileInfo, 0, len(names))
-	for _, filename := range names {
+	fiss := make([]fileInfo, len(names))
+	for i, filename := range names {
 		if len(filename) > 0 && filename[0] == '.' && !opts.all {
 			continue
 		}
-		fi, _ := stat(dirname + filename)
-		if fi != nil {
+		fi := &fiss[i]
+		err := stat(dirname + filename, fi)
+		if err == nil {
 			fis = append(fis, fi)
 		}
 	}

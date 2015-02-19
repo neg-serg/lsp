@@ -16,7 +16,8 @@ type fileInfo struct {
 
 // get info about file/directory name
 func ls(name string) (fileList, error) {
-	fi, err := stat(name)
+	fi := &fileInfo{}
+	err := stat(name, fi)
 	if err != nil {
 		return nil, err
 	}
@@ -27,37 +28,37 @@ func ls(name string) (fileList, error) {
 }
 
 // stat returns a fileInfo describing the named file
-func stat(name string) (*fileInfo, error) {
+func stat(name string, out *fileInfo) error {
 	var stat syscall.Stat_t
 	err := syscall.Lstat(name, &stat)
 	if err != nil {
-		return nil, &PathError{"stat", name, err}
+		return &PathError{"stat", name, err}
 	}
 
-	fi := &fileInfo{
-		name:   *newSufIndexed(basename(name)),
+	*out = fileInfo{
+		name:   newSufIndexed(basename(name)),
 		size:   int64(stat.Size),
 		mode:   fileMode(stat.Mode),
 		time:   gettime(&stat),
 		linkok: true,
 	}
 
-	if fi.mode&syscall.S_IFMT == syscall.S_IFLNK {
+	if out.mode&syscall.S_IFMT == syscall.S_IFLNK {
 		ln, err := readlink(name)
 		if err != nil {
-			fi.linkok = false
-			return fi, nil
+			out.linkok = false
+			return nil
 		}
-		fi.linkname = *newSufIndexed(ln)
+		out.linkname = newSufIndexed(ln)
 		err = syscall.Stat(name, &stat)
 		if err != nil {
-			fi.linkok = false
-			return fi, nil
+			out.linkok = false
+			return nil
 		}
-		fi.linkmode = fileMode(stat.Mode)
+		out.linkmode = fileMode(stat.Mode)
 	}
 
-	return fi, nil
+	return nil
 }
 
 // basename the leading directory name from path name

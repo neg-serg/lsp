@@ -24,7 +24,7 @@ func readdir(dirname string) ([]*fileInfo, error) {
 			continue
 		}
 		fi := &fiss[i]
-		err := stat(dirname + filename, fi)
+		err := stat(dirname+filename, fi)
 		if err == nil {
 			fis = append(fis, fi)
 		}
@@ -46,20 +46,17 @@ func open(name string) (int, error) {
 	return r, nil
 }
 
-func readdirnames(fd int) (names []string, err error) {
-	d := new(dirInfo)
-	d.buf = make([]byte, blockSize)
+func readdirnames(fd int) ([]string, error) {
+	d := dirInfo{buf: make([]byte, blockSize)}
 
 	size := 100
-	n := -1
-
-	names = make([]string, 0, size)
-	for n != 0 {
+	names := make([]string, 0, size)
+	for {
 		// Refill the buffer if necessary
 		if d.bufp >= d.nbuf {
 			d.bufp = 0
 			var errno error
-			d.nbuf, errno = syscall.ReadDirent(fd, d.buf)
+			d.nbuf, errno = fixCount(syscall.ReadDirent(fd, d.buf))
 			if errno != nil {
 				return names, NewSyscallError("readdirent", errno)
 			}
@@ -69,10 +66,9 @@ func readdirnames(fd int) (names []string, err error) {
 		}
 
 		// Drain the buffer
-		var nb, nc int
-		nb, nc, names = syscall.ParseDirent(d.buf[d.bufp:d.nbuf], n, names)
+		var nb int
+		nb, _, names = syscall.ParseDirent(d.buf[d.bufp:d.nbuf], -1, names)
 		d.bufp += nb
-		n -= nc
 	}
 	return names, nil
 }

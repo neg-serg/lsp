@@ -1,4 +1,5 @@
-// +build darwin dragonfly freebsd linux nacl netbsd openbsd solaris windows
+// Pointless for now:
+// +build darwin dragonfly freebsd linux netbsd openbsd solaris
 
 package main
 

@@ -60,22 +60,3 @@ func stat(name string, out *fileInfo) error {
 
 	return nil
 }
-
-// basename the leading directory name from path name
-func basename(name string) string {
-	for i := len(name) - 1; i >= 0; i-- {
-		if name[i] == '/' {
-			return name[i+1:]
-		}
-	}
-	return name
-}
-
-func cleanRight(path []byte) []byte {
-	for i := len(path); i > 0; i-- {
-		if path[i-1] != '/' {
-			return path[:i]
-		}
-	}
-	return path
-}

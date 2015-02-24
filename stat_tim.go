@@ -1,3 +1,5 @@
+// +build dragonfly linux openbsd
+
 package main
 
 import (

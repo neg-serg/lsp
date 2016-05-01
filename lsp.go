@@ -42,9 +42,13 @@ func main() {
 		sort.Sort(sorter)
 		if colorize {
 			for _, f := range nfis {
+				b.Write(nCol)
 				strmode(b, f.mode)
+				b.WriteByte(' ')
+				b.Write(nCol)
 				reltime(b, f.time)
-				b.Write(cCol)
+				b.WriteByte(' ')
+				b.Write(nCol)
 				size(b, f.size)
 				b.Write(cCol)
 				name(b, f)

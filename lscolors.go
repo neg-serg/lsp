@@ -20,8 +20,8 @@ var lsColorTypes = [...]string{
 	"01;36",  // "ln": Symlink: bright cyan
 	"33",     // "pi": Pipe: yellow/brown
 	"01;35",  // "so": Socket: bright magenta
-	"01;33",  // "bd": Block device: bright yellow
-	"01;33",  // "cd": Char device: bright yellow
+	"01;37",  // "bd": Block device: bright yellow
+	"01;37",  // "cd": Char device: bright yellow
 	"",       // "mi": Missing file: undefined
 	"",       // "or": Orphaned symlink: undefined
 	"01;32",  // "ex": Executable: bright green
